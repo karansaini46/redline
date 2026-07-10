@@ -1,0 +1,14 @@
+src/app/(dashboard)/contracts/_components/contracts-table.tsx(163,66): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/app/(dashboard)/contracts/_components/contracts-table.tsx(179,64): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/app/(dashboard)/contracts/_components/contracts-table.tsx(194,67): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+src/app/(dashboard)/contracts/_components/contracts-table.tsx(265,50): error TS2322: Type '{ children: Element; className: string; asChild: true; }' is not assignable to type 'IntrinsicAttributes & ButtonProps & VariantProps<(props?: (ConfigVariants<{ variant: { default: string; outline: string; secondary: string; ghost: string; destructive: string; link: string; }; size: { ...; }; }> & ClassProp) | undefined) => string>'.
+  Property 'asChild' does not exist on type 'IntrinsicAttributes & ButtonProps & VariantProps<(props?: (ConfigVariants<{ variant: { default: string; outline: string; secondary: string; ghost: string; destructive: string; link: string; }; size: { ...; }; }> & ClassProp) | undefined) => string>'.
+src/app/(dashboard)/contracts/page.tsx(70,5): error TS2322: Type '({ [x: string]: string; id?: undefined; } | { id: string; })[]' is not assignable to type 'ContractOrderByWithRelationInput | ContractOrderByWithRelationInput[] | undefined'.
+  Type '({ [x: string]: string; id?: undefined; } | { id: string; })[]' is not assignable to type 'ContractOrderByWithRelationInput[]'.
+    Type '{ [x: string]: string; id?: undefined; } | { id: string; }' is not assignable to type 'ContractOrderByWithRelationInput'.
+      Type '{ id: string; }' is not assignable to type 'ContractOrderByWithRelationInput'.
+        Types of property 'id' are incompatible.
+          Type 'string' is not assignable to type 'SortOrder | undefined'.

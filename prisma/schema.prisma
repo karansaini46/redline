@@ -108,6 +108,7 @@ model Contract {
   title                 String
   status                ContractStatus          @default(DRAFT)
   due_date              DateTime?
+  risk_score            Int?
   created_at            DateTime                @default(now())
   updated_at            DateTime                @updatedAt
 
@@ -118,6 +119,7 @@ model Contract {
   @@index([status])
   @@index([due_date])
   @@index([created_at])
+  @@index([risk_score])
 }
 
 model ContractVersion {
