@@ -1,6 +1,7 @@
 "use server"
 
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 import argon2 from "argon2"
 import { randomBytes, createHash } from "crypto"
 import { Resend } from "resend"
@@ -23,7 +24,7 @@ export async function signup(data: { email: string, password: string, name?: str
   const password_hash = await argon2.hash(data.password)
 
   // Atomic transaction
-  const user = await prisma.$transaction(async (tx) => {
+  const user = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const newUser = await tx.user.create({
       data: {
         email: data.email,
@@ -89,7 +90,7 @@ export async function verifyEmail(token: string) {
     throw new Error("Invalid or expired token")
   }
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     await tx.user.update({
       where: { id: authToken.userId },
       data: { email_verified: new Date() }
@@ -155,7 +156,7 @@ export async function resetPassword(token: string, newPassword: string) {
 
   const password_hash = await argon2.hash(newPassword)
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     await tx.user.update({
       where: { id: authToken.userId },
       data: { password_hash }

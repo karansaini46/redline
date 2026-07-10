@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/server/rbac";
 import { createHash } from "crypto";
-import { Role } from "@prisma/client";
+import { Role, Prisma } from "@prisma/client";
 
 export async function acceptInvite(token: string) {
   const session = await auth();
@@ -36,7 +36,7 @@ export async function acceptInvite(token: string) {
     throw new Error("You are already a member of this organization");
   }
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const mem = await tx.membership.create({
       data: {
         user_id: userId,
@@ -96,7 +96,7 @@ export async function changeMemberRole(
     await requireRole(orgId, userId, "OWNER");
   }
 
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     await tx.membership.update({
       where: { id: targetMembership.id },
       data: { role: newRole },

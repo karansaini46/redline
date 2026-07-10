@@ -4,7 +4,7 @@ import {
 } from "@langchain/google-genai";
 import { z } from "zod";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { ClauseType, PrismaClient } from "@prisma/client";
+import { ClauseType, Prisma, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -201,7 +201,7 @@ export async function extractClauses(contractVersionId: string, text: string) {
     // but here we can just create them and fetch, or create them one by one/in a transaction.
     // Or we can just use createMany and then query them back based on text and contract_version_id.
     // Since we need to update vectors by ID, it's safer to use $transaction.
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       for (let i = 0; i < recordsToInsert.length; i++) {
         const record = recordsToInsert[i];
         const embedding = embeddings[i];

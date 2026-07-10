@@ -3,6 +3,7 @@ import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
+import { Prisma } from "@prisma/client"
 import argon2 from "argon2"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -10,7 +11,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     ...PrismaAdapter(prisma),
     createUser: async (data) => {
       // Atomic transaction: create user, org, and membership (OWNER)
-      return await prisma.$transaction(async (tx) => {
+      return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const user = await tx.user.create({
           data,
         })

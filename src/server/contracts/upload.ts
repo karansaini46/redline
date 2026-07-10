@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { requireRole } from "@/server/rbac";
 import { supabase } from "@/lib/supabase";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 
@@ -80,7 +81,7 @@ export async function uploadContractAction(
     await requireRole(orgId, userId, "MEMBER");
 
     // Process inside a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       let resolvedContractId = contractId;
       let versionNumber = 1;
 

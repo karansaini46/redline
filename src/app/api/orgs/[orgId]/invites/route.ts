@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/server/rbac";
 import { randomBytes, createHash } from "crypto";
 import { Resend } from "resend";
+import { Prisma } from "@prisma/client";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -32,7 +33,7 @@ export async function POST(
     const token = randomBytes(32).toString("hex");
     const tokenHash = createHash("sha256").update(token).digest("hex");
 
-    const invite = await prisma.$transaction(async (tx) => {
+    const invite = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const inv = await tx.orgInvite.create({
         data: {
           org_id: orgId,
