@@ -1,13 +1,212 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [vector]
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum ClauseType {
+  CONFIDENTIALITY
+  INDEMNIFICATION
+  TERMINATION
+  PAYMENT
+  LIABILITY
+  WARRANTY
+  GOVERNING_LAW
+  FORCE_MAJEURE
+  OTHER
+}
+
+enum RiskSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ContractStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  EXECUTED
+}
+
+model Organization {
+  id                    String                  @id @default(uuid())
+  name                  String
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+
+  memberships           Membership[]
+  contracts             Contract[]
+  audit_logs            AuditLogEntry[]
+  standard_clauses      StandardClauseLibrary[]
+}
+
+model User {
+  id                    String                  @id @default(uuid())
+  email                 String                  @unique
+  name                  String
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+
+  memberships           Membership[]
+  comments              Comment[]
+  audit_logs            AuditLogEntry[]
+}
+
+model Membership {
+  id                    String                  @id @default(uuid())
+  user_id               String
+  org_id                String
+  role                  Role                    @default(VIEWER)
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+
+  user                  User                    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  organization          Organization            @relation(fields: [org_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, org_id])
+  @@index([org_id])
+}
+
+model Contract {
+  id                    String                  @id @default(uuid())
+  org_id                String
+  title                 String
+  status                ContractStatus          @default(DRAFT)
+  due_date              DateTime?
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+
+  organization          Organization            @relation(fields: [org_id], references: [id], onDelete: Cascade)
+  versions              ContractVersion[]
+
+  @@index([org_id])
+  @@index([status])
+  @@index([due_date])
+  @@index([created_at])
+}
+
+model ContractVersion {
+  id                    String                  @id @default(uuid())
+  contract_id           String
+  version_number        Int
+  content_text          String
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+
+  contract              Contract                @relation(fields: [contract_id], references: [id], onDelete: Cascade)
+  clauses               Clause[]
+  
+  comparisons_as_source VersionComparison[]     @relation("SourceVersion")
+  comparisons_as_target VersionComparison[]     @relation("TargetVersion")
+
+  @@unique([contract_id, version_number])
+}
+
+model Clause {
+  id                    String                  @id @default(uuid())
+  contract_version_id   String
+  clause_type           ClauseType              @default(OTHER)
+  text                  String
+  embedding             Unsupported("vector(768)")?
+  page_number           Int?
+  char_start            Int
+  char_end              Int
+  is_standard           Boolean                 @default(false)
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+
+  contract_version      ContractVersion         @relation(fields: [contract_version_id], references: [id], onDelete: Cascade)
+  risk_flags            RiskFlag[]
+  obligations           Obligation[]
+  comments              Comment[]
+}
+
+model RiskFlag {
+  id                    String                  @id @default(uuid())
+  clause_id             String
+  severity              RiskSeverity
+  description           String
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+
+  clause                Clause                  @relation(fields: [clause_id], references: [id], onDelete: Cascade)
+}
+
+model Obligation {
+  id                    String                  @id @default(uuid())
+  clause_id             String
+  description           String
+  recurring_rule        String?
+  due_date              DateTime?
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+
+  clause                Clause                  @relation(fields: [clause_id], references: [id], onDelete: Cascade)
+}
+
+model VersionComparison {
+  id                    String                  @id @default(uuid())
+  source_version_id     String
+  target_version_id     String
+  diff_summary          String                  @db.Text
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+
+  source_version        ContractVersion         @relation("SourceVersion", fields: [source_version_id], references: [id], onDelete: Cascade)
+  target_version        ContractVersion         @relation("TargetVersion", fields: [target_version_id], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id                    String                  @id @default(uuid())
+  clause_id             String
+  user_id               String
+  content               String
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+
+  clause                Clause                  @relation(fields: [clause_id], references: [id], onDelete: Cascade)
+  user                  User                    @relation(fields: [user_id], references: [id], onDelete: Restrict)
+}
+
+model AuditLogEntry {
+  id                    String                  @id @default(uuid())
+  org_id                String
+  user_id               String
+  action                String
+  entity_type           String
+  entity_id             String
+  details               Json?
+  created_at            DateTime                @default(now())
+
+  organization          Organization            @relation(fields: [org_id], references: [id], onDelete: Cascade)
+  user                  User                    @relation(fields: [user_id], references: [id], onDelete: Restrict)
+
+  @@index([org_id])
+  @@index([created_at])
+}
+
+model StandardClauseLibrary {
+  id                    String                  @id @default(uuid())
+  org_id                String
+  title                 String
+  clause_type           ClauseType
+  text                  String
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+
+  organization          Organization            @relation(fields: [org_id], references: [id], onDelete: Cascade)
 }
