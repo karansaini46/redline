@@ -1,0 +1,1 @@
+import pkg from 'pg'; const { Client } = pkg; const client = new Client({ connectionString: process.env.DATABASE_URL }); await client.connect(); await client.query('DROP TABLE IF EXISTS reminders CASCADE; DROP TABLE IF EXISTS appointments CASCADE;'); await client.end(); console.log('Done');

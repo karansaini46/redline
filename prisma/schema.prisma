@@ -49,7 +49,8 @@ enum ContractStatus {
 
 enum ProcessingStatus {
   PENDING
-  PROCESSED
+  EXTRACTING
+  EXTRACTED
   FAILED
 }
 
@@ -123,6 +124,7 @@ model ContractVersion {
   content_text          String?
   storage_path          String?
   processing_status     ProcessingStatus        @default(PENDING)
+  error_message         String?                 @db.Text
   created_at            DateTime                @default(now())
   updated_at            DateTime                @updatedAt
 
