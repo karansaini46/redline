@@ -150,6 +150,10 @@ model Clause {
   char_start            Int
   char_end              Int
   is_standard           Boolean                 @default(false)
+  risk_score            Int?
+  risk_severity         RiskSeverity?
+  risk_rationale        String?                 @db.Text
+  deviation_notes       String?                 @db.Text
   created_at            DateTime                @default(now())
   updated_at            DateTime                @updatedAt
 
@@ -163,7 +167,9 @@ model RiskFlag {
   id                    String                  @id @default(uuid())
   clause_id             String
   severity              RiskSeverity
+  category              String
   description           String
+  suggested_action      String                  @db.Text
   created_at            DateTime                @default(now())
   updated_at            DateTime                @updatedAt
 

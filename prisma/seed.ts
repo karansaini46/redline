@@ -155,6 +155,9 @@ async function main() {
           severity: RiskSeverity.MEDIUM,
           description:
             "Broad limitation of liability may pose a risk in certain jurisdictions.",
+          category: "Broad Liability Scope",
+          suggested_action:
+            "Review jurisdictional constraints on liability limitations.",
         },
       });
     }
