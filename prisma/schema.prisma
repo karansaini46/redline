@@ -57,6 +57,7 @@ model Organization {
   contracts             Contract[]
   audit_logs            AuditLogEntry[]
   standard_clauses      StandardClauseLibrary[]
+  org_invites           OrgInvite[]
 }
 
 model User {
@@ -272,4 +273,19 @@ model AuthToken {
 
   @@index([userId])
   @@index([tokenHash])
+}
+
+model OrgInvite {
+  id           String    @id @default(uuid())
+  org_id       String
+  email        String
+  role         Role
+  token_hash   String    @unique @map("token_hash")
+  expires_at   DateTime  @map("expires_at")
+  accepted_at  DateTime? @map("accepted_at")
+  created_at   DateTime  @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [org_id], references: [id], onDelete: Cascade)
+
+  @@index([email])
 }
