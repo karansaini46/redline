@@ -1,14 +1,15 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client";
 
-const prismaClientSingleton = () => {
-  return new PrismaClient()
-}
+let cachedPrisma: PrismaClient | undefined;
 
-declare global {
-  // eslint-disable-next-line no-var
-  var prismaGlobal: undefined | ReturnType<typeof prismaClientSingleton>
-}
-
-export const prisma = globalThis.prismaGlobal ?? prismaClientSingleton()
-
-if (process.env.NODE_ENV !== 'production') globalThis.prismaGlobal = prisma
+export const prisma = new Proxy({} as PrismaClient, {
+  get(target, prop) {
+    if (!cachedPrisma) {
+      cachedPrisma = new PrismaClient({
+        log: ["query", "info", "warn", "error"],
+      });
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (cachedPrisma as any)[prop as keyof PrismaClient];
+  },
+});

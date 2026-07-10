@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Worker, Job } from "bullmq";
 import Redis from "ioredis";
 import { PrismaClient, ProcessingStatus } from "@prisma/client";
