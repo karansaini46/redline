@@ -1,7 +1,7 @@
 # Redline Product Plan
 
 ## 1. Pitch
-Redline is an AI-powered contract intelligence platform designed to help legal and operations teams process agreements with unprecedented speed and accuracy. By automatically extracting key clauses, scoring risks, and tracking obligations, it eliminates manual review bottlenecks and surfaces critical insights instantly. With seamless version comparison and collaborative workflows, Redline transforms static contracts into active, manageable, and secure data assets.
+Redline is an AI contract intelligence platform that automatically extracts clauses from uploaded contracts, scores them for risk using rule-based checks and LLM rationales, tracks obligations, and shows exactly what changed between two versions. It replaces manual risk review with a portfolio-wide risk dashboard, semantic search across all contracts, and automatic renewal reminders. By transforming static contracts into active data, Redline empowers legal and ops teams to instantly find critical insights, like every deal with an uncapped liability clause.
 
 ## 2. User Stories
 ### Owner
@@ -18,13 +18,13 @@ Redline is an AI-powered contract intelligence platform designed to help legal a
 
 ### Viewer
 - As a Viewer, I want to read parsed contracts, extracted obligations, and risk reports so I can stay informed without accidentally modifying the data.
-- As a Viewer, I want to search and filter the contract repository by metadata (e.g., expiration date, counterparty) to quickly find relevant agreements.
+- As a Viewer, I want to perform semantic search across the entire contract repository to quickly find specific risks, like every deal with an uncapped liability clause.
 
 ## 3. Core User Journeys
 ### Journey 1: Contract Upload & Initial AI Review
 1. A Member logs into the platform and navigates to the "Upload" section.
 2. They drag and drop a vendor agreement (PDF) into the upload zone.
-3. The platform processes the file, utilizing the LLM to extract text, identify key clauses (e.g., Indemnification, Termination), and generate a preliminary risk score.
+3. The platform processes the file, utilizing the LLM to extract text, identify key clauses (e.g., Indemnification, Termination), and generate a preliminary risk score using both rule-based checks and an LLM rationale.
 4. The Member is notified that processing is complete and clicks into the contract dashboard to view the highlighted risks and extracted metadata.
 
 ### Journey 2: Collaborative Review & Commenting
