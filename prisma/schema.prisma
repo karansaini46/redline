@@ -47,6 +47,12 @@ enum ContractStatus {
   EXECUTED
 }
 
+enum ProcessingStatus {
+  PENDING
+  PROCESSED
+  FAILED
+}
+
 model Organization {
   id                    String                  @id @default(uuid())
   name                  String
@@ -114,7 +120,9 @@ model ContractVersion {
   id                    String                  @id @default(uuid())
   contract_id           String
   version_number        Int
-  content_text          String
+  content_text          String?
+  storage_path          String?
+  processing_status     ProcessingStatus        @default(PENDING)
   created_at            DateTime                @default(now())
   updated_at            DateTime                @updatedAt
 
