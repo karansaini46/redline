@@ -105,11 +105,11 @@ async function main() {
       text: "Either party may terminate this Agreement with 30 days written notice.",
     },
     {
-      type: ClauseType.LIABILITY,
+      type: ClauseType.LIABILITY_CAP,
       text: "In no event shall either party be liable for any indirect, special, or consequential damages.",
     },
     {
-      type: ClauseType.PAYMENT,
+      type: ClauseType.PAYMENT_TERMS,
       text: "Payment shall be made within net 30 days from the receipt of the invoice.",
     },
     {

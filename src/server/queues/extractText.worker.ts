@@ -3,6 +3,7 @@ import Redis from 'ioredis';
 import { PrismaClient, ProcessingStatus } from '@prisma/client';
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
+import { extractClauses } from '../services/extractClauses';
 // import { createClient } from '@supabase/supabase-js'; // We would use this to fetch from storage
 
 const prisma = new PrismaClient();
@@ -80,6 +81,9 @@ export const extractTextProcessor = async (job: Job<{ contractVersionId: string,
           content_text: extractedText,
         },
       });
+
+      // 5. Extract clauses from text using LangChain + Gemini
+      await extractClauses(contractVersionId, extractedText);
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
