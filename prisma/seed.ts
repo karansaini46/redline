@@ -142,8 +142,10 @@ async function main() {
       // TERMINATION
       await prisma.obligation.create({
         data: {
+          contract_id: contracts[0].contract.id,
           clause_id: newClauseId,
           description: "Provide 30 days written notice before termination",
+          status: "OPEN",
         },
       });
     }

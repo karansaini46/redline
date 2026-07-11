@@ -8,6 +8,26 @@ import { ClauseType, Prisma, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+const ObligationSchema = z.object({
+  description: z
+    .string()
+    .describe(
+      "Description of the obligation (e.g. renewal deadline, payment due date)",
+    ),
+  due_date: z
+    .string()
+    .nullable()
+    .optional()
+    .describe(
+      "ISO 8601 date string if a specific date is mentioned or calculable",
+    ),
+  recurring_rule: z
+    .string()
+    .nullable()
+    .optional()
+    .describe("Small grammar rule (e.g. 'monthly', 'yearly') if applicable"),
+});
+
 const ClauseSchema = z.object({
   clause_type: z.nativeEnum(ClauseType),
   text_excerpt: z
@@ -35,6 +55,12 @@ const ClauseSchema = z.object({
     .min(0)
     .max(1)
     .describe("Confidence score of this extraction between 0 and 1."),
+  obligations: z
+    .array(ObligationSchema)
+    .optional()
+    .describe(
+      "Any candidate obligations (renewals, payments, notice periods) identified in this clause",
+    ),
 });
 
 const ExtractionResponseSchema = z.object({
@@ -76,7 +102,7 @@ async function extractFromChunkWithRetry(
 
   const systemPrompt = retry
     ? "CRITICAL INSTRUCTION: You are a legal contract analyzer. You MUST return ONLY valid JSON matching the schema. DO NOT wrap in markdown like ```json. Do not include conversational text. The clause types must strictly match the enum. Your output will be parsed programmatically. Malformed JSON will cause a system failure."
-    : "You are an expert legal contract analyzer. Extract the following clause types from the text below: termination, indemnification, liability_cap, confidentiality, ip_assignment, non_compete, payment_terms, governing_law, auto_renewal, force_majeure, other. Return ONLY valid JSON matching the schema.";
+    : "You are an expert legal contract analyzer. Extract the following clause types from the text below: termination, indemnification, liability_cap, confidentiality, ip_assignment, non_compete, payment_terms, governing_law, auto_renewal, force_majeure, other. Also extract any candidate obligations (renewal deadlines, payment due dates, termination notice windows) found within these clauses. Return ONLY valid JSON matching the schema.";
 
   try {
     const response = await structuredLlm.invoke([
@@ -105,6 +131,12 @@ export async function extractClauses(contractVersionId: string, text: string) {
   if (!text || text.trim().length === 0) {
     return;
   }
+
+  const version = await prisma.contractVersion.findUnique({
+    where: { id: contractVersionId },
+  });
+  if (!version) return;
+  const contractId = version.contract_id;
 
   // 1. Chunk long contracts (>8k tokens ~32k chars) with ~500 token (~2k char) overlap
   const splitter = new RecursiveCharacterTextSplitter({
@@ -219,6 +251,25 @@ export async function extractClauses(contractVersionId: string, text: string) {
           SET embedding = ${vectorString}::vector 
           WHERE id = ${created.id}
         `;
+
+        const clauseObligations = deduplicatedClauses[i].obligations;
+        if (clauseObligations && clauseObligations.length > 0) {
+          await tx.obligation.createMany({
+            data: clauseObligations.map((o) => {
+              const parsedDate = o.due_date ? new Date(o.due_date) : null;
+              const safeDate =
+                parsedDate && !isNaN(parsedDate.getTime()) ? parsedDate : null;
+              return {
+                contract_id: contractId,
+                clause_id: created.id,
+                description: o.description,
+                due_date: safeDate,
+                recurring_rule: o.recurring_rule,
+                status: "OPEN",
+              };
+            }),
+          });
+        }
       }
     });
   }

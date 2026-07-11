@@ -1,0 +1,40 @@
+import { Queue } from "bullmq";
+import Redis from "ioredis";
+
+const redisUrl = process.env.UPSTASH_REDIS_URL;
+
+const connection = redisUrl
+  ? new Redis(redisUrl, { maxRetriesPerRequest: null })
+  : undefined;
+
+if (!connection) {
+  console.warn(
+    "UPSTASH_REDIS_URL is not set. Reminders queue is running without Redis connection.",
+  );
+}
+
+export const remindersQueue = new Queue("reminders", {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  connection: connection as any,
+  defaultJobOptions: {
+    attempts: 3,
+    backoff: {
+      type: "exponential",
+      delay: 1000,
+    },
+  },
+});
+
+export async function setupRemindersJob() {
+  if (connection) {
+    await remindersQueue.add(
+      "daily-reminders",
+      {},
+      {
+        repeat: {
+          pattern: "0 8 * * *",
+        },
+      },
+    );
+  }
+}

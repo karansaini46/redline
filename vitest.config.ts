@@ -12,6 +12,10 @@ export default defineConfig({
     environment: "jsdom",
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@prisma/client": path.resolve(
+        __dirname,
+        "./node_modules/@prisma/client",
+      ),
     },
     env,
     setupFiles: ["./vitest.setup.ts"],

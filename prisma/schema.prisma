@@ -57,63 +57,71 @@ enum ProcessingStatus {
   FAILED
 }
 
-model Organization {
-  id                    String                  @id @default(uuid())
-  name                  String
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
+enum ObligationStatus {
+  OPEN
+  DONE
+  DISMISSED
+}
 
-  memberships           Membership[]
-  contracts             Contract[]
-  audit_logs            AuditLogEntry[]
-  standard_clauses      StandardClauseLibrary[]
-  org_invites           OrgInvite[]
+model Organization {
+  id         String   @id @default(uuid())
+  name       String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  memberships      Membership[]
+  contracts        Contract[]
+  audit_logs       AuditLogEntry[]
+  standard_clauses StandardClauseLibrary[]
+  org_invites      OrgInvite[]
 }
 
 model User {
-  id                    String                  @id @default(uuid())
-  email                 String                  @unique
-  name                  String?
-  password_hash         String?
-  email_verified        DateTime?
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
+  id             String    @id @default(uuid())
+  email          String    @unique
+  name           String?
+  password_hash  String?
+  email_verified DateTime?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
 
-  memberships           Membership[]
-  comments              Comment[]
-  audit_logs            AuditLogEntry[]
-  accounts              Account[]
-  sessions              Session[]
-  auth_tokens           AuthToken[]
+  memberships Membership[]
+  comments    Comment[]
+  audit_logs  AuditLogEntry[]
+  accounts    Account[]
+  sessions    Session[]
+  auth_tokens AuthToken[]
+  obligations Obligation[]
 }
 
 model Membership {
-  id                    String                  @id @default(uuid())
-  user_id               String
-  org_id                String
-  role                  Role                    @default(VIEWER)
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
+  id         String   @id @default(uuid())
+  user_id    String
+  org_id     String
+  role       Role     @default(VIEWER)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  user                  User                    @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  organization          Organization            @relation(fields: [org_id], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [org_id], references: [id], onDelete: Cascade)
 
   @@unique([user_id, org_id])
   @@index([org_id])
 }
 
 model Contract {
-  id                    String                  @id @default(uuid())
-  org_id                String
-  title                 String
-  status                ContractStatus          @default(DRAFT)
-  due_date              DateTime?
-  risk_score            Int?
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
+  id         String         @id @default(uuid())
+  org_id     String
+  title      String
+  status     ContractStatus @default(DRAFT)
+  due_date   DateTime?
+  risk_score Int?
+  created_at DateTime       @default(now())
+  updated_at DateTime       @updatedAt
 
-  organization          Organization            @relation(fields: [org_id], references: [id], onDelete: Cascade)
-  versions              ContractVersion[]
+  organization Organization      @relation(fields: [org_id], references: [id], onDelete: Cascade)
+  versions     ContractVersion[]
+  obligations  Obligation[]
 
   @@index([org_id])
   @@index([status])
@@ -123,139 +131,150 @@ model Contract {
 }
 
 model ContractVersion {
-  id                    String                  @id @default(uuid())
-  contract_id           String
-  version_number        Int
-  content_text          String?
-  storage_path          String?
-  processing_status     ProcessingStatus        @default(PENDING)
-  error_message         String?                 @db.Text
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
+  id                String           @id @default(uuid())
+  contract_id       String
+  version_number    Int
+  content_text      String?
+  storage_path      String?
+  processing_status ProcessingStatus @default(PENDING)
+  error_message     String?          @db.Text
+  created_at        DateTime         @default(now())
+  updated_at        DateTime         @updatedAt
 
-  contract              Contract                @relation(fields: [contract_id], references: [id], onDelete: Cascade)
-  clauses               Clause[]
-  
-  comparisons_as_source VersionComparison[]     @relation("SourceVersion")
-  comparisons_as_target VersionComparison[]     @relation("TargetVersion")
+  contract Contract @relation(fields: [contract_id], references: [id], onDelete: Cascade)
+  clauses  Clause[]
+
+  comparisons_as_source VersionComparison[] @relation("SourceVersion")
+  comparisons_as_target VersionComparison[] @relation("TargetVersion")
 
   @@unique([contract_id, version_number])
 }
 
 model Clause {
-  id                    String                  @id @default(uuid())
-  contract_version_id   String
-  clause_type           ClauseType              @default(OTHER)
-  text                  String
-  embedding             Unsupported("vector(768)")?
-  page_number           Int?
-  char_start            Int
-  char_end              Int
-  is_standard           Boolean                 @default(false)
-  risk_score            Int?
-  risk_severity         RiskSeverity?
-  risk_rationale        String?                 @db.Text
-  deviation_notes       String?                 @db.Text
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
+  id                  String                      @id @default(uuid())
+  contract_version_id String
+  clause_type         ClauseType                  @default(OTHER)
+  text                String
+  embedding           Unsupported("vector(768)")?
+  page_number         Int?
+  char_start          Int
+  char_end            Int
+  is_standard         Boolean                     @default(false)
+  risk_score          Int?
+  risk_severity       RiskSeverity?
+  risk_rationale      String?                     @db.Text
+  deviation_notes     String?                     @db.Text
+  created_at          DateTime                    @default(now())
+  updated_at          DateTime                    @updatedAt
 
-  contract_version      ContractVersion         @relation(fields: [contract_version_id], references: [id], onDelete: Cascade)
-  risk_flags            RiskFlag[]
-  obligations           Obligation[]
-  comments              Comment[]
+  contract_version ContractVersion @relation(fields: [contract_version_id], references: [id], onDelete: Cascade)
+  risk_flags       RiskFlag[]
+  obligations      Obligation[]
+  comments         Comment[]
 }
 
 model RiskFlag {
-  id                    String                  @id @default(uuid())
-  clause_id             String
-  severity              RiskSeverity
-  category              String
-  description           String
-  suggested_action      String                  @db.Text
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
+  id               String       @id @default(uuid())
+  clause_id        String
+  severity         RiskSeverity
+  category         String
+  description      String
+  suggested_action String       @db.Text
+  created_at       DateTime     @default(now())
+  updated_at       DateTime     @updatedAt
 
-  clause                Clause                  @relation(fields: [clause_id], references: [id], onDelete: Cascade)
+  clause Clause @relation(fields: [clause_id], references: [id], onDelete: Cascade)
 }
 
 model Obligation {
-  id                    String                  @id @default(uuid())
-  clause_id             String
+  id                    String           @id @default(uuid())
+  contract_id           String
+  clause_id             String?
   description           String
   recurring_rule        String?
   due_date              DateTime?
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
+  status                ObligationStatus @default(OPEN)
+  owner_id              String?
+  last_reminder_sent_at DateTime?
+  created_at            DateTime         @default(now())
+  updated_at            DateTime         @updatedAt
 
-  clause                Clause                  @relation(fields: [clause_id], references: [id], onDelete: Cascade)
+  contract Contract @relation(fields: [contract_id], references: [id], onDelete: Cascade)
+  clause   Clause?  @relation(fields: [clause_id], references: [id], onDelete: Cascade)
+  owner    User?    @relation(fields: [owner_id], references: [id], onDelete: SetNull)
+
+  @@index([contract_id])
+  @@index([owner_id])
+  @@index([status])
+  @@index([due_date])
 }
 
 model VersionComparison {
-  id                    String                  @id @default(uuid())
-  source_version_id     String
-  target_version_id     String
-  diff_summary          String                  @db.Text
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
+  id                String   @id @default(uuid())
+  source_version_id String
+  target_version_id String
+  diff_summary      String   @db.Text
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
 
-  source_version        ContractVersion         @relation("SourceVersion", fields: [source_version_id], references: [id], onDelete: Cascade)
-  target_version        ContractVersion         @relation("TargetVersion", fields: [target_version_id], references: [id], onDelete: Cascade)
+  source_version ContractVersion @relation("SourceVersion", fields: [source_version_id], references: [id], onDelete: Cascade)
+  target_version ContractVersion @relation("TargetVersion", fields: [target_version_id], references: [id], onDelete: Cascade)
 }
 
 model Comment {
-  id                    String                  @id @default(uuid())
-  clause_id             String
-  user_id               String
-  content               String
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
+  id         String   @id @default(uuid())
+  clause_id  String
+  user_id    String
+  content    String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
-  clause                Clause                  @relation(fields: [clause_id], references: [id], onDelete: Cascade)
-  user                  User                    @relation(fields: [user_id], references: [id], onDelete: Restrict)
+  clause Clause @relation(fields: [clause_id], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [user_id], references: [id], onDelete: Restrict)
 }
 
 model AuditLogEntry {
-  id                    String                  @id @default(uuid())
-  org_id                String
-  user_id               String
-  action                String
-  entity_type           String
-  entity_id             String
-  details               Json?
-  created_at            DateTime                @default(now())
+  id          String   @id @default(uuid())
+  org_id      String
+  user_id     String
+  action      String
+  entity_type String
+  entity_id   String
+  details     Json?
+  created_at  DateTime @default(now())
 
-  organization          Organization            @relation(fields: [org_id], references: [id], onDelete: Cascade)
-  user                  User                    @relation(fields: [user_id], references: [id], onDelete: Restrict)
+  organization Organization @relation(fields: [org_id], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [user_id], references: [id], onDelete: Restrict)
 
   @@index([org_id])
   @@index([created_at])
 }
 
 model StandardClauseLibrary {
-  id                    String                  @id @default(uuid())
-  org_id                String
-  title                 String
-  clause_type           ClauseType
-  text                  String
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
+  id          String     @id @default(uuid())
+  org_id      String
+  title       String
+  clause_type ClauseType
+  text        String
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
 
-  organization          Organization            @relation(fields: [org_id], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [org_id], references: [id], onDelete: Cascade)
 }
 
 model Account {
-  id                 String  @id @default(uuid())
-  userId             String  @map("user_id")
-  type               String
-  provider           String
-  providerAccountId  String  @map("provider_account_id")
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text
-  session_state      String?
+  id                String  @id @default(uuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -282,29 +301,29 @@ model VerificationToken {
 }
 
 model AuthToken {
-  id           String    @id @default(uuid())
-  userId       String    @map("user_id")
-  type         TokenType
-  tokenHash    String    @map("token_hash") @unique
-  expiresAt    DateTime  @map("expires_at")
+  id            String    @id @default(uuid())
+  userId        String    @map("user_id")
+  type          TokenType
+  tokenHash     String    @unique @map("token_hash")
+  expiresAt     DateTime  @map("expires_at")
   invalidatedAt DateTime? @map("invalidated_at")
-  createdAt    DateTime  @default(now()) @map("created_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
 
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([tokenHash])
 }
 
 model OrgInvite {
-  id           String    @id @default(uuid())
-  org_id       String
-  email        String
-  role         Role
-  token_hash   String    @unique @map("token_hash")
-  expires_at   DateTime  @map("expires_at")
-  accepted_at  DateTime? @map("accepted_at")
-  created_at   DateTime  @default(now()) @map("created_at")
+  id          String    @id @default(uuid())
+  org_id      String
+  email       String
+  role        Role
+  token_hash  String    @unique @map("token_hash")
+  expires_at  DateTime  @map("expires_at")
+  accepted_at DateTime? @map("accepted_at")
+  created_at  DateTime  @default(now()) @map("created_at")
 
   organization Organization @relation(fields: [org_id], references: [id], onDelete: Cascade)
 
