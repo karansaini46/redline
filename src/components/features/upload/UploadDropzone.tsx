@@ -153,13 +153,23 @@ export function UploadDropzone({
   return (
     <div className="w-full max-w-xl mx-auto">
       <div
-        className={`relative rounded-xl border-2 border-dashed p-8 transition-colors duration-200 ease-in-out ${
+        className={`relative rounded-xl border-2 border-dashed p-8 transition-colors duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
           isDragActive
             ? "border-blue-500 bg-blue-50/50 dark:bg-blue-900/10"
             : error
               ? "border-red-300 bg-red-50/30 dark:border-red-900 dark:bg-red-900/10"
               : "border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700"
-        } ${isUploading ? "opacity-75 pointer-events-none" : ""}`}
+        } ${isUploading ? "opacity-75 pointer-events-none" : "cursor-pointer"}`}
+        tabIndex={isUploading || selectedFile ? -1 : 0}
+        onClick={() =>
+          !selectedFile && !isUploading && fileInputRef.current?.click()
+        }
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && !selectedFile && !isUploading) {
+            e.preventDefault();
+            fileInputRef.current?.click();
+          }
+        }}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}

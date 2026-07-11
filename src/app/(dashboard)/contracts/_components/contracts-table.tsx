@@ -298,8 +298,12 @@ export function ContractsTable({
               <TableHead className="w-[300px]">Contract Title</TableHead>
               <TableHead>Status</TableHead>
               <TableHead
-                className="cursor-pointer select-none group"
+                className="cursor-pointer select-none group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+                tabIndex={0}
                 onClick={() => handleSort("risk_score")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSort("risk_score");
+                }}
               >
                 <div className="flex items-center">
                   Risk Level
@@ -312,8 +316,12 @@ export function ContractsTable({
                 </div>
               </TableHead>
               <TableHead
-                className="cursor-pointer select-none group"
+                className="cursor-pointer select-none group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+                tabIndex={0}
                 onClick={() => handleSort("due_date")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSort("due_date");
+                }}
               >
                 <div className="flex items-center">
                   Due Date
@@ -326,8 +334,12 @@ export function ContractsTable({
                 </div>
               </TableHead>
               <TableHead
-                className="text-right cursor-pointer select-none group"
+                className="text-right cursor-pointer select-none group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+                tabIndex={0}
                 onClick={() => handleSort("created_at")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSort("created_at");
+                }}
               >
                 <div className="flex items-center justify-end">
                   Created At
