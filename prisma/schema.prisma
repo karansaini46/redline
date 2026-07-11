@@ -213,7 +213,8 @@ model VersionComparison {
   id                String   @id @default(uuid())
   source_version_id String
   target_version_id String
-  diff_summary      String   @db.Text
+  ai_summary        String   @db.Text
+  diff_json         Json
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
 
