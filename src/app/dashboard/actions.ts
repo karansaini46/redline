@@ -79,3 +79,38 @@ export async function getHighRiskContractTrend() {
     count: Number(row.count)
   }));
 }
+
+export async function getDashboardKPIs() {
+  const org = await prisma.organization.findFirst();
+  if (!org) return { activeContracts: 0, highRiskFlags: 0, pendingRenewals: 0, processing: 0 };
+  
+  const orgId = org.id;
+
+  const activeContracts = await prisma.contract.count({
+    where: { org_id: orgId }
+  });
+
+  const highRiskFlags = await prisma.clause.count({
+    where: {
+      contract_version: { contract: { org_id: orgId } },
+      risk_severity: { in: ['HIGH', 'CRITICAL'] }
+    }
+  });
+
+  const pendingRenewals = await prisma.obligation.count({
+    where: {
+      contract: { org_id: orgId },
+      description: { contains: 'renewal', mode: 'insensitive' },
+      status: 'OPEN'
+    }
+  });
+
+  const processing = await prisma.contractVersion.count({
+    where: {
+      contract: { org_id: orgId },
+      processing_status: { in: ['PENDING', 'EXTRACTING'] }
+    }
+  });
+
+  return { activeContracts, highRiskFlags, pendingRenewals, processing };
+}

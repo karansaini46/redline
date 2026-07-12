@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { requireRole } from "@/server/rbac";
 import { supabase } from "@/lib/supabase";
 import { prisma } from "@/lib/prisma";
+import { extractTextQueue } from "@/server/queues/extractText.queue";
 import { Prisma } from "@prisma/client";
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
@@ -144,6 +145,14 @@ export async function uploadContractAction(
         contractId: resolvedContractId,
         versionId: contractVersion.id,
       };
+    });
+
+    // Enqueue the job for AI extraction
+    // Since this is dev, simulate passing the buffer for testing the worker locally
+    const bufferArray = Array.from(buffer);
+    await extractTextQueue.add("extract-text", {
+      contractVersionId: result.versionId,
+      buffer: bufferArray
     });
 
     return {

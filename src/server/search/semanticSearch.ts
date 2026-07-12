@@ -30,7 +30,8 @@ export async function semanticSearchClauses({
   limit = 20,
 }: SemanticSearchOptions): Promise<SemanticSearchResult[]> {
   const embeddingsModel = new GoogleGenerativeAIEmbeddings({
-    modelName: "text-embedding-004",
+    apiKey: process.env.GEMINI_API_KEY,
+    modelName: "gemini-embedding-001",
   });
 
   const queryEmbedding = await embeddingsModel.embedQuery(query);

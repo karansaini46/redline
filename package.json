@@ -8,7 +8,13 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",
-    "prepare": "husky"
+    "prepare": "husky",
+    "worker": "tsx watch src/server/queues/index.ts",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "overrides": {
+    "pdfjs-dist": "4.8.69"
   },
   "dependencies": {
     "@auth/core": "^0.41.2",
@@ -17,6 +23,7 @@
     "@langchain/core": "^1.2.2",
     "@langchain/google-genai": "^2.2.0",
     "@langchain/textsplitters": "^1.0.1",
+    "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@supabase/supabase-js": "^2.110.2",
     "argon2": "^0.44.0",
@@ -26,6 +33,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.4.0",
     "diff": "^9.0.0",
+    "framer-motion": "^12.42.2",
     "ioredis": "^5.11.1",
     "langchain": "^1.5.3",
     "lucide-react": "^1.24.0",
@@ -34,7 +42,7 @@
     "next-auth": "^5.0.0-beta.31",
     "next-themes": "^0.4.6",
     "pdf-parse": "^1.1.1",
-    "pdfjs-dist": "^6.1.200",
+    "pdfjs-dist": "4.8.69",
     "pg": "^8.22.0",
     "react": "^18",
     "react-dom": "^18",
@@ -71,6 +79,7 @@
     "prettier": "^3.9.5",
     "prisma": "^7.8.0",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.23.0",
     "typescript": "^5",
     "vitest": "^4.1.10"
   },

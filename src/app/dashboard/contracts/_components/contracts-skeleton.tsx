@@ -20,9 +20,9 @@ export function ContractsSkeleton() {
         </div>
       </div>
 
-      <div className="rounded-md border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-border/40 bg-surface shadow-sm overflow-hidden">
         <Table>
-          <TableHeader className="bg-muted/50">
+          <TableHeader className="bg-muted/20 border-b border-border/40">
             <TableRow>
               <TableHead className="w-[300px]">Contract</TableHead>
               <TableHead>Status</TableHead>

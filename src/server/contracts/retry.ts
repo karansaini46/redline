@@ -13,7 +13,7 @@ const connection = redisUrl
   : undefined;
 
 const extractTextQueue = connection
-  ? new Queue("extract-text", { connection: connection as any })
+  ? new Queue("extract-text", { connection: connection as unknown as typeof connection })
   : null;
 
 export async function retryExtractionAction(

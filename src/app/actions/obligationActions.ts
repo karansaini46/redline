@@ -20,7 +20,7 @@ export async function createObligationAction(
   data: z.infer<typeof CreateObligationSchema>,
 ) {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  if (!session || !session.user || !session.user.id) throw new Error("Unauthorized");
   await requireRole(orgId, session.user.id, "MEMBER");
   const parsed = CreateObligationSchema.parse(data);
 
@@ -35,7 +35,7 @@ export async function createObligationAction(
     },
   });
 
-  revalidatePath("/obligations");
+  revalidatePath("/dashboard/obligations");
   return obligation;
 }
 
@@ -45,7 +45,7 @@ export async function updateObligationStatusAction(
   status: ObligationStatus,
 ) {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  if (!session || !session.user || !session.user.id) throw new Error("Unauthorized");
   await requireRole(orgId, session.user.id, "MEMBER");
 
   const updated = await prisma.obligation.update({
@@ -53,6 +53,6 @@ export async function updateObligationStatusAction(
     data: { status },
   });
 
-  revalidatePath("/obligations");
+  revalidatePath("/dashboard/obligations");
   return updated;
 }

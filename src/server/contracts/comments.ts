@@ -5,10 +5,12 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/server/rbac";
 import { revalidatePath } from "next/cache";
 
+import type { Comment } from "@prisma/client";
+
 export type AddCommentState = {
   success: boolean;
   error?: string;
-  comment?: any;
+  comment?: Comment & { user: { id: string; name: string | null; email: string | null } };
 };
 
 export async function addCommentAction(
@@ -45,7 +47,7 @@ export async function addCommentAction(
       },
     });
 
-    revalidatePath(`/contracts/${contractId}`);
+    revalidatePath(`/dashboard/contracts/${contractId}`);
 
     return {
       success: true,

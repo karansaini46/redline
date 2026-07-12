@@ -7,11 +7,18 @@ import "react-pdf/dist/Page/TextLayer.css";
 import { Loader2 } from "lucide-react";
 
 // Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// Pinned pdfjs-dist to 4.8.69 in package.json due to Next.js 14 Webpack incompatibility with v5+ module loading.
+pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 
 interface DocumentViewerProps {
   fileUrl: string;
-  selectedClause?: any;
+  selectedClause?: {
+    id: string;
+    text: string;
+    page_number: number | null;
+    char_start: number | null;
+    char_end: number | null;
+  } | null;
 }
 
 export function DocumentViewer({ fileUrl, selectedClause }: DocumentViewerProps) {
@@ -36,7 +43,7 @@ export function DocumentViewer({ fileUrl, selectedClause }: DocumentViewerProps)
   }, [selectedClause?.id, selectedClause?.page_number, numPages]);
 
   const customTextRenderer = useCallback(
-    (textItem: any) => {
+    (textItem: { str: string }) => {
       if (!selectedClause || !selectedClause.text) return textItem.str;
       
       const clauseText = selectedClause.text.replace(/\s+/g, " ");
@@ -59,7 +66,7 @@ export function DocumentViewer({ fileUrl, selectedClause }: DocumentViewerProps)
       
       return textItem.str;
     },
-    [selectedClause?.id, selectedClause?.text] // Recompute when selected clause changes
+    [selectedClause] // Recompute when selected clause changes
   );
 
   return (

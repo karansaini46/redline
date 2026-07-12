@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Worker, Job } from "bullmq";
 import Redis from "ioredis";
-import { PrismaClient, ProcessingStatus } from "@prisma/client";
+import { ProcessingStatus } from "@prisma/client";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const pdfParse = require("pdf-parse");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -9,7 +9,7 @@ const mammoth = require("mammoth");
 import { extractClauses } from "../services/extractClauses";
 // import { createClient } from '@supabase/supabase-js'; // We would use this to fetch from storage
 
-const prisma = new PrismaClient();
+import { prisma } from "../../lib/prisma";
 const redisUrl = process.env.UPSTASH_REDIS_URL;
 const connection = redisUrl
   ? new Redis(redisUrl, { maxRetriesPerRequest: null })

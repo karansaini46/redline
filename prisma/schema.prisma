@@ -155,7 +155,7 @@ model Clause {
   contract_version_id String
   clause_type         ClauseType                  @default(OTHER)
   text                String
-  embedding           Unsupported("vector(768)")?
+  embedding           Unsupported("vector(3072)")?
   page_number         Int?
   char_start          Int
   char_end            Int

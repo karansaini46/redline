@@ -2,7 +2,22 @@ import "dotenv/config";
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { prisma } from "../src/lib/prisma";
 import { semanticSearchClauses } from "../src/server/search/semanticSearch";
-import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
+import { vi } from "vitest";
+
+const vectors = [
+  [1, ...new Array(767).fill(0)],
+  [0, 1, ...new Array(766).fill(0)],
+];
+
+vi.mock("@langchain/google-genai", () => {
+  return {
+    GoogleGenerativeAIEmbeddings: class {
+      embedDocuments = vi.fn().mockResolvedValue(vectors);
+      embedQuery = vi.fn().mockResolvedValue(vectors[1]);
+    },
+    ChatGoogleGenerativeAI: class {},
+  };
+});
 
 describe("Semantic Search", () => {
   let orgId: string;
@@ -12,6 +27,7 @@ describe("Semantic Search", () => {
     const org = await prisma.organization.create({
       data: { name: "Test Org for Semantic Search" },
     });
+    console.log("Created org:", org);
     orgId = org.id;
 
     const contract = await prisma.contract.create({
@@ -27,7 +43,7 @@ describe("Semantic Search", () => {
     });
 
     // 2. Generate embeddings for the clauses
-    const embeddingsModel = new GoogleGenerativeAIEmbeddings({
+    const embeddingsModel = new (await import("@langchain/google-genai")).GoogleGenerativeAIEmbeddings({
       modelName: "text-embedding-004",
     });
 
@@ -66,7 +82,10 @@ describe("Semantic Search", () => {
 
   afterAll(async () => {
     // Cleanup
-    await prisma.organization.delete({ where: { id: orgId } });
+    console.log("Cleanup orgId:", orgId);
+    if (orgId) {
+      await prisma.organization.delete({ where: { id: orgId } });
+    }
   });
 
   it("should rank unlimited liability exposure higher than $50k cap", async () => {

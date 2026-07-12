@@ -1,12 +1,11 @@
 import {
-  PrismaClient,
   Role,
   ClauseType,
   ContractStatus,
   RiskSeverity,
 } from "@prisma/client";
 
-const prisma = new PrismaClient();
+import { prisma } from "../src/lib/prisma";
 
 // Helper to generate a fake 768d embedding in string format recognized by vector extension
 const generateFakeEmbedding = () => {

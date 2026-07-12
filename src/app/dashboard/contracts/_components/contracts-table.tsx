@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Contract, ContractStatus } from "@prisma/client";
+import { Contract, ContractStatus, ContractVersion, ProcessingStatus } from "@prisma/client";
 import {
   Search,
   FileText,
@@ -10,11 +10,17 @@ import {
   ArrowUp,
   ArrowDown,
   ArrowUpDown,
+  Loader2,
+  CheckCircle2,
+  FolderOpen
 } from "lucide-react";
+import { format } from "date-fns";
 
 import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { FadeIn, StaggerContainer, StaggerItem, ScaleHover } from "@/components/ui/motion";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   Table,
   TableBody,
@@ -32,8 +38,12 @@ import {
 } from "@/components/ui/select";
 import Link from "next/link";
 
+type ContractWithVersion = Contract & {
+  versions?: ContractVersion[];
+};
+
 interface ContractsTableProps {
-  contracts: Contract[];
+  contracts: ContractWithVersion[];
   hasMore: boolean;
   totalCount: number;
 }
@@ -73,6 +83,21 @@ export function ContractsTable({
 
     return () => clearTimeout(timer);
   }, [query, router, pathname, searchParams]);
+
+  // Polling for pending contracts
+  React.useEffect(() => {
+    const hasPendingContracts = contracts.some((c) => {
+      const status = c.versions?.[0]?.processing_status;
+      return status === "PENDING" || status === "EXTRACTING";
+    });
+
+    if (hasPendingContracts) {
+      const interval = setInterval(() => {
+        router.refresh();
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [contracts, router]);
 
   const createQueryString = React.useCallback(
     (name: string, value: string) => {
@@ -146,22 +171,22 @@ export function ContractsTable({
       return (
         <Badge
           variant="secondary"
-          className="font-normal text-muted-foreground bg-gray-100"
+          className="font-medium text-muted-foreground bg-muted hover:bg-muted"
         >
           Unscored
         </Badge>
       );
     if (score >= 70)
       return (
-        <Badge variant="destructive" className="font-medium shadow-sm">
+        <Badge variant="outline" className="font-medium bg-destructive/10 text-destructive border-transparent hover:bg-destructive/20">
           High Risk
         </Badge>
       );
     if (score >= 40)
       return (
         <Badge
-          variant="default"
-          className="font-medium bg-amber-500 hover:bg-amber-600 shadow-sm text-white"
+          variant="outline"
+          className="font-medium bg-warning/10 text-warning border-transparent hover:bg-warning/20"
         >
           Medium Risk
         </Badge>
@@ -169,7 +194,7 @@ export function ContractsTable({
     return (
       <Badge
         variant="outline"
-        className="font-medium border-emerald-500 text-emerald-600 bg-emerald-50"
+        className="font-medium bg-success/10 text-success border-transparent hover:bg-success/20"
       >
         Low Risk
       </Badge>
@@ -179,12 +204,12 @@ export function ContractsTable({
   const getStatusBadge = (status: ContractStatus) => {
     switch (status) {
       case "DRAFT":
-        return <Badge variant="secondary">Draft</Badge>;
+        return <Badge variant="secondary" className="bg-muted text-muted-foreground hover:bg-muted">Draft</Badge>;
       case "IN_REVIEW":
         return (
           <Badge
             variant="outline"
-            className="border-blue-200 bg-blue-50 text-blue-700"
+            className="border-transparent bg-primary/10 text-primary hover:bg-primary/20"
           >
             In Review
           </Badge>
@@ -193,7 +218,7 @@ export function ContractsTable({
         return (
           <Badge
             variant="outline"
-            className="border-emerald-200 bg-emerald-50 text-emerald-700"
+            className="border-transparent bg-success/10 text-success hover:bg-success/20"
           >
             Approved
           </Badge>
@@ -202,19 +227,34 @@ export function ContractsTable({
         return (
           <Badge
             variant="outline"
-            className="border-red-200 bg-red-50 text-red-700"
+            className="border-transparent bg-destructive/10 text-destructive hover:bg-destructive/20"
           >
             Rejected
           </Badge>
         );
       case "EXECUTED":
         return (
-          <Badge variant="default" className="bg-slate-800 text-slate-100">
+          <Badge variant="default" className="bg-primary text-primary-foreground shadow-sm">
             Executed
           </Badge>
         );
       default:
         return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const getProcessingBadge = (status?: ProcessingStatus) => {
+    switch (status) {
+      case "PENDING":
+        return <Badge variant="secondary" className="text-muted-foreground bg-muted hover:bg-muted"><Loader2 className="mr-1 h-3 w-3 animate-spin" /> Pending</Badge>;
+      case "EXTRACTING":
+        return <Badge variant="outline" className="border-transparent bg-primary/10 text-primary hover:bg-primary/20"><Loader2 className="mr-1 h-3 w-3 animate-spin" /> Processing...</Badge>;
+      case "EXTRACTED":
+        return <Badge variant="outline" className="border-transparent bg-success/10 text-success hover:bg-success/20"><CheckCircle2 className="mr-1 h-3 w-3" /> Complete</Badge>;
+      case "FAILED":
+        return <Badge variant="outline" className="border-transparent bg-destructive/10 text-destructive hover:bg-destructive/20"><XCircle className="mr-1 h-3 w-3" /> Failed</Badge>;
+      default:
+        return <Badge variant="secondary" className="bg-muted text-muted-foreground hover:bg-muted">Unknown</Badge>;
     }
   };
 
@@ -225,15 +265,15 @@ export function ContractsTable({
     searchParams.has("expires");
 
   return (
-    <div className="space-y-4">
+    <FadeIn className="space-y-6 w-full">
       {/* Filters Toolbar */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <div className="relative flex-1 sm:max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             type="text"
             placeholder="Search contracts..."
-            className="pl-9 bg-white shadow-sm transition-all focus-visible:ring-primary/20"
+            className="pl-9 bg-surface shadow-sm transition-all focus-visible:ring-primary/20 h-9"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -244,7 +284,7 @@ export function ContractsTable({
             value={searchParams.get("status") || "all"}
             onValueChange={(val) => handleFilterChange("status", val || "")}
           >
-            <SelectTrigger className="w-[130px] bg-white shadow-sm">
+            <SelectTrigger className="w-[130px] bg-surface shadow-sm h-9">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -260,7 +300,7 @@ export function ContractsTable({
             value={searchParams.get("risk") || "all"}
             onValueChange={(val) => handleFilterChange("risk", val || "")}
           >
-            <SelectTrigger className="w-[130px] bg-white shadow-sm">
+            <SelectTrigger className="w-[130px] bg-surface shadow-sm h-9">
               <SelectValue placeholder="Risk Level" />
             </SelectTrigger>
             <SelectContent>
@@ -275,7 +315,7 @@ export function ContractsTable({
             value={searchParams.get("expires") || "all"}
             onValueChange={(val) => handleFilterChange("expires", val || "")}
           >
-            <SelectTrigger className="w-[130px] bg-white shadow-sm">
+            <SelectTrigger className="w-[130px] bg-surface shadow-sm h-9">
               <SelectValue placeholder="Expiring" />
             </SelectTrigger>
             <SelectContent>
@@ -290,13 +330,14 @@ export function ContractsTable({
 
       {/* Table Area */}
       <div
-        className={`rounded-md border bg-white shadow-sm overflow-hidden transition-opacity duration-200 ${isPending ? "opacity-60" : "opacity-100"}`}
+        className={`rounded-md border bg-background shadow-sm overflow-hidden transition-opacity duration-200 ${isPending ? "opacity-60" : "opacity-100"}`}
       >
         <Table>
           <TableHeader className="bg-muted/50 hover:bg-muted/50">
             <TableRow>
               <TableHead className="w-[300px]">Contract Title</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>AI Analysis</TableHead>
               <TableHead
                 className="cursor-pointer select-none group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
                 tabIndex={0}
@@ -359,55 +400,31 @@ export function ContractsTable({
           <TableBody>
             {contracts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-64 text-center">
-                  <div className="flex flex-col items-center justify-center space-y-3">
+                <TableCell colSpan={6} className="h-64 text-center">
+                  <div className="flex justify-center p-4">
                     {totalCount === 0 ? (
-                      <>
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                          <FileText className="h-6 w-6 text-primary" />
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-lg font-medium">
-                            No contracts yet
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Upload your first contract to get started.
-                          </p>
-                        </div>
-                        <Link
-                          href="/contracts/upload"
-                          className={buttonVariants({ className: "mt-4" })}
-                        >
-                          Upload Contract
-                        </Link>
-                      </>
+                      <EmptyState
+                        icon={FolderOpen}
+                        title="No contracts yet"
+                        description="Upload your first contract to get started with AI analysis."
+                        primaryAction={{
+                          label: "Upload Contract",
+                          onClick: () => router.push("/dashboard/contracts/upload")
+                        }}
+                      />
                     ) : (
-                      <>
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-                          <Search className="h-6 w-6 text-muted-foreground" />
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-lg font-medium">
-                            No matching contracts found
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Try adjusting your filters or search query.
-                          </p>
-                        </div>
-                        {hasFilters && (
-                          <Button
-                            variant="outline"
-                            className="mt-4"
-                            onClick={() => {
-                              setQuery("");
-                              router.push(pathname);
-                            }}
-                          >
-                            <XCircle className="mr-2 h-4 w-4" />
-                            Clear filters
-                          </Button>
-                        )}
-                      </>
+                      <EmptyState
+                        icon={Search}
+                        title="No matching contracts found"
+                        description="Try adjusting your filters or search query."
+                        primaryAction={hasFilters ? {
+                          label: "Clear filters",
+                          onClick: () => {
+                            setQuery("");
+                            router.push(pathname);
+                          }
+                        } : undefined}
+                      />
                     )}
                   </div>
                 </TableCell>
@@ -416,20 +433,22 @@ export function ContractsTable({
               contracts.map((contract) => (
                 <TableRow
                   key={contract.id}
-                  className="h-16 group hover:bg-muted/30 transition-colors"
+                  onClick={() => router.push(`/dashboard/contracts/${contract.id}`)}
+                  className="h-16 group hover:bg-muted/50 hover:shadow-sm cursor-pointer transition-all duration-200"
                 >
-                  <TableCell className="font-medium text-slate-900 group-hover:text-primary transition-colors">
+                  <TableCell className="font-medium group-hover:text-primary transition-colors">
                     {contract.title}
                   </TableCell>
                   <TableCell>{getStatusBadge(contract.status)}</TableCell>
+                  <TableCell>{getProcessingBadge(contract.versions?.[0]?.processing_status)}</TableCell>
                   <TableCell>{getRiskBadge(contract.risk_score)}</TableCell>
                   <TableCell className="text-muted-foreground">
                     {contract.due_date
-                      ? new Date(contract.due_date).toLocaleDateString()
+                      ? format(new Date(contract.due_date), "MMM d, yyyy")
                       : "—"}
                   </TableCell>
                   <TableCell className="text-right text-muted-foreground">
-                    {new Date(contract.created_at).toLocaleDateString()}
+                    {format(new Date(contract.created_at), "MMM d, yyyy")}
                   </TableCell>
                 </TableRow>
               ))
@@ -439,17 +458,17 @@ export function ContractsTable({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-end pt-2">
         <Button
           variant="outline"
           size="sm"
           onClick={handleNextPage}
           disabled={!hasMore || isPending}
-          className="shadow-sm"
+          className="shadow-sm rounded-full px-6"
         >
-          Next Page
+          {isPending ? "Loading..." : "Load More"}
         </Button>
       </div>
-    </div>
+    </FadeIn>
   );
 }

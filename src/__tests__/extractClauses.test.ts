@@ -2,17 +2,32 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { extractClauses } from "../server/services/extractClauses";
 
-const { mockCreateMany, mockInvoke } = vi.hoisted(() => ({
+const { mockCreateMany, mockInvoke, mockFindUnique, mockClauseCreate, mockExecuteRaw } = vi.hoisted(() => ({
   mockCreateMany: vi.fn(),
   mockInvoke: vi.fn(),
+  mockFindUnique: vi.fn().mockResolvedValue({ id: "version_123", contract_id: "contract_123" }),
+  mockClauseCreate: vi.fn().mockImplementation(async (args) => ({ id: "mock_id", ...args.data })),
+  mockExecuteRaw: vi.fn(),
 }));
 
 vi.mock("@prisma/client", () => {
   return {
     PrismaClient: class {
+      contractVersion = {
+        findUnique: mockFindUnique,
+      };
       clause = {
         createMany: mockCreateMany,
+        create: mockClauseCreate,
       };
+      $transaction = vi.fn().mockImplementation(async (cb) => {
+        const tx = {
+          clause: { create: mockClauseCreate },
+          obligation: { createMany: mockCreateMany },
+          $executeRaw: mockExecuteRaw,
+        };
+        return cb(tx);
+      });
     },
     ClauseType: {
       TERMINATION: "TERMINATION",
@@ -45,6 +60,11 @@ vi.mock("@langchain/google-genai", () => {
         return {
           invoke: mockInvoke,
         };
+      });
+    },
+    GoogleGenerativeAIEmbeddings: class {
+      embedDocuments = vi.fn().mockImplementation(async (texts: string[]) => {
+        return texts.map(() => new Array(768).fill(0.1));
       });
     },
   };
@@ -164,9 +184,9 @@ describe("extractClauses service", () => {
     expect(mockInvoke.mock.calls.length).toBeGreaterThanOrEqual(1);
 
     // Verify DB insert was called
-    expect(mockCreateMany).toHaveBeenCalledTimes(1);
+    expect(mockClauseCreate).toHaveBeenCalledTimes(6);
 
-    const insertedData = mockCreateMany.mock.calls[0][0].data;
+    const insertedData = mockClauseCreate.mock.calls.map((call: any) => call[0].data);
 
     // Assert exactly 6 unique clauses are saved (LIABILITY_CAP deduplicated)
     expect(insertedData.length).toBe(6);
@@ -223,7 +243,7 @@ describe("extractClauses service", () => {
     const secondCallSystemPrompt = mockInvoke.mock.calls[1][0][0][1];
     expect(secondCallSystemPrompt).toContain("CRITICAL INSTRUCTION");
 
-    expect(mockCreateMany).toHaveBeenCalledTimes(1);
-    expect(mockCreateMany.mock.calls[0][0].data.length).toBe(1);
+    expect(mockClauseCreate).toHaveBeenCalledTimes(1);
+    expect(mockClauseCreate.mock.calls[0][0].data).toBeDefined();
   });
 });

@@ -62,15 +62,13 @@ export default async function ContractsPage({
   const finalSortBy = validSortFields.includes(sortBy) ? sortBy : "created_at";
   const finalSortDir = sortDir === "asc" ? "asc" : "desc";
 
-  const primarySort: Prisma.ContractOrderByWithRelationInput = {};
-  if (finalSortBy === "due_date") primarySort.due_date = finalSortDir;
-  else if (finalSortBy === "risk_score") primarySort.risk_score = finalSortDir;
-  else primarySort.created_at = finalSortDir;
+  const orderBy: Prisma.ContractOrderByWithRelationInput[] = [];
 
-  const orderBy: Prisma.ContractOrderByWithRelationInput[] = [
-    primarySort,
-    { id: "desc" },
-  ];
+  if (finalSortBy === "due_date") orderBy.push({ due_date: finalSortDir });
+  else if (finalSortBy === "risk_score") orderBy.push({ risk_score: finalSortDir });
+  else orderBy.push({ created_at: finalSortDir });
+
+  orderBy.push({ id: "desc" });
 
   const totalCount = await prisma.contract.count();
 
@@ -81,6 +79,12 @@ export default async function ContractsPage({
     skip: cursor ? 1 : 0,
     cursor: cursor ? { id: cursor } : undefined,
     orderBy,
+    include: {
+      versions: {
+        orderBy: { version_number: "desc" },
+        take: 1,
+      },
+    },
   });
 
   const hasMore = contracts.length > take;

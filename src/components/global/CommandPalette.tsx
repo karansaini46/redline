@@ -91,7 +91,7 @@ export function CommandPalette() {
                 key={contract.id}
                 value={contract.id}
                 onSelect={() =>
-                  runCommand(() => router.push(`/contracts/${contract.id}`))
+                  runCommand(() => router.push(`/dashboard/contracts/${contract.id}`))
                 }
               >
                 <FileText className="mr-2 h-4 w-4" />
@@ -103,17 +103,17 @@ export function CommandPalette() {
 
         <CommandGroup heading="Navigation">
           <CommandItem
-            onSelect={() => runCommand(() => router.push("/contracts/upload"))}
+            onSelect={() => runCommand(() => router.push("/dashboard/contracts/upload"))}
           >
             <UploadCloud className="mr-2 h-4 w-4" />
             <span>New Upload</span>
           </CommandItem>
-          <CommandItem onSelect={() => runCommand(() => router.push("/"))}>
+          <CommandItem onSelect={() => runCommand(() => router.push("/dashboard"))}>
             <LayoutDashboard className="mr-2 h-4 w-4" />
             <span>Dashboard</span>
           </CommandItem>
           <CommandItem
-            onSelect={() => runCommand(() => router.push("/obligations"))}
+            onSelect={() => runCommand(() => router.push("/dashboard/obligations"))}
           >
             <Calendar className="mr-2 h-4 w-4" />
             <span>Obligations</span>

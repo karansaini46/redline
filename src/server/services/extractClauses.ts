@@ -4,9 +4,9 @@ import {
 } from "@langchain/google-genai";
 import { z } from "zod";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-import { ClauseType, Prisma, PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
+import type { ClauseType } from "@prisma/client";
 
 const ObligationSchema = z.object({
   description: z
@@ -29,7 +29,20 @@ const ObligationSchema = z.object({
 });
 
 const ClauseSchema = z.object({
-  clause_type: z.nativeEnum(ClauseType),
+  clause_type: z.enum([
+    "CONFIDENTIALITY",
+    "INDEMNIFICATION",
+    "TERMINATION",
+    "PAYMENT_TERMS",
+    "LIABILITY_CAP",
+    "WARRANTY",
+    "GOVERNING_LAW",
+    "FORCE_MAJEURE",
+    "IP_ASSIGNMENT",
+    "NON_COMPETE",
+    "AUTO_RENEWAL",
+    "OTHER"
+  ]),
   text_excerpt: z
     .string()
     .describe(
@@ -147,6 +160,7 @@ export async function extractClauses(contractVersionId: string, text: string) {
   const chunks = await splitter.splitText(text);
 
   const model = new ChatGoogleGenerativeAI({
+    apiKey: process.env.GEMINI_API_KEY,
     model: "gemini-2.5-flash",
     temperature: 0,
     maxRetries: 1, // Let Langchain do 1 network retry, but we handle the parsing retry manually
@@ -214,7 +228,8 @@ export async function extractClauses(contractVersionId: string, text: string) {
   if (deduplicatedClauses.length > 0) {
     // Generate embeddings in batch
     const embeddingsModel = new GoogleGenerativeAIEmbeddings({
-      modelName: "text-embedding-004", // Default Gemini embedding model
+      apiKey: process.env.GEMINI_API_KEY,
+      modelName: "gemini-embedding-001", // Default Gemini embedding model
     });
 
     const textsToEmbed = deduplicatedClauses.map((c) => c.text_excerpt);

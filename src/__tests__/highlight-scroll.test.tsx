@@ -7,7 +7,7 @@ import React from "react";
 vi.mock("react-pdf", () => {
   return {
     pdfjs: { GlobalWorkerOptions: { workerSrc: "" } },
-    Document: ({ children, onLoadSuccess }: any) => {
+    Document: ({ children, onLoadSuccess }: { children: React.ReactNode; onLoadSuccess?: (pdf: { numPages: number }) => void }) => {
       // Simulate successful load with 2 pages
       React.useEffect(() => {
         if (onLoadSuccess) {
@@ -16,7 +16,7 @@ vi.mock("react-pdf", () => {
       }, [onLoadSuccess]);
       return React.createElement("div", { "data-testid": "pdf-document" }, children);
     },
-    Page: ({ pageNumber, customTextRenderer }: any) => {
+    Page: ({ pageNumber, customTextRenderer }: { pageNumber: number; customTextRenderer?: (textItem: { str: string }) => React.ReactNode }) => {
       // Simulate text rendering
       const mockTextItem = { str: "This agreement shall remain in effect for a period of five years." };
       const renderedText = customTextRenderer ? customTextRenderer(mockTextItem) : mockTextItem.str;
