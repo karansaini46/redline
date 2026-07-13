@@ -10,14 +10,16 @@ import type { Comment } from "@prisma/client";
 export type AddCommentState = {
   success: boolean;
   error?: string;
-  comment?: Comment & { user: { id: string; name: string | null; email: string | null } };
+  comment?: Comment & {
+    user: { id: string; name: string | null; email: string | null };
+  };
 };
 
 export async function addCommentAction(
   clauseId: string,
   content: string,
   contractId: string,
-  orgId: string
+  orgId: string,
 ): Promise<AddCommentState> {
   const session = await auth();
   const userId = session?.user?.id;
@@ -33,6 +35,22 @@ export async function addCommentAction(
   try {
     // Require at least VIEWER role to comment (or MEMBER depending on org rules)
     await requireRole(orgId, userId, "VIEWER"); // Usually anyone who can see it can comment
+
+    const clause = await prisma.clause.findFirst({
+      where: {
+        id: clauseId,
+        contract_version: {
+          contract: {
+            id: contractId,
+            org_id: orgId,
+          },
+        },
+      },
+    });
+
+    if (!clause) {
+      return { success: false, error: "Clause not found or access denied" };
+    }
 
     const comment = await prisma.comment.create({
       data: {

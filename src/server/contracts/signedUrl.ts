@@ -6,7 +6,7 @@ import { requireRole } from "@/server/rbac";
 
 export async function getSignedUrlAction(
   storagePath: string,
-  orgId: string
+  orgId: string,
 ): Promise<{ success: boolean; url?: string; error?: string }> {
   const session = await auth();
   const userId = session?.user?.id;
@@ -18,6 +18,10 @@ export async function getSignedUrlAction(
   try {
     // Viewer role is enough to view the contract document
     await requireRole(orgId, userId, "VIEWER");
+
+    if (!storagePath.startsWith(`${orgId}/`)) {
+      return { success: false, error: "Invalid storage path or access denied" };
+    }
 
     const { data, error } = await supabase.storage
       .from("contracts")

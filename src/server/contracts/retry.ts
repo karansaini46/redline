@@ -13,13 +13,15 @@ const connection = redisUrl
   : undefined;
 
 const extractTextQueue = connection
-  ? new Queue("extract-text", { connection: connection as unknown as typeof connection })
+  ? new Queue("extract-text", {
+      connection: connection as unknown as typeof connection,
+    })
   : null;
 
 export async function retryExtractionAction(
   versionId: string,
   contractId: string,
-  orgId: string
+  orgId: string,
 ) {
   const session = await auth();
   const userId = session?.user?.id;
@@ -33,12 +35,15 @@ export async function retryExtractionAction(
     await requireRole(orgId, userId, "MEMBER");
 
     // 1. Verify version exists and is FAILED
-    const version = await prisma.contractVersion.findUnique({
-      where: { id: versionId },
+    const version = await prisma.contractVersion.findFirst({
+      where: {
+        id: versionId,
+        contract: { id: contractId, org_id: orgId },
+      },
     });
 
     if (!version) {
-      return { success: false, error: "Version not found" };
+      return { success: false, error: "Version not found or access denied" };
     }
 
     if (version.processing_status !== ProcessingStatus.FAILED) {

@@ -205,7 +205,7 @@ export async function generateRiskRationaleAndDeviation(
   return response;
 }
 
-export async function scoreClause(clauseId: string) {
+export async function scoreClause(clauseId: string, userId?: string) {
   const clause = await prisma.clause.findUnique({
     where: { id: clauseId },
     include: {
@@ -270,14 +270,29 @@ export async function scoreClause(clauseId: string) {
   // The rules set the severity ceiling, but we also create the flags here.
   for (const flag of ruleResult.flags) {
     if (severityRank[flag.severity] >= severityRank.MEDIUM) {
-      await prisma.riskFlag.create({
-        data: {
-          clause_id: clauseId,
-          severity: flag.severity,
-          description: llmResult.risk_rationale, // Use LLM rationale or a default description
-          category: flag.category,
-          suggested_action: flag.suggestedAction,
-        },
+      await prisma.$transaction(async (tx) => {
+        const createdFlag = await tx.riskFlag.create({
+          data: {
+            clause_id: clauseId,
+            severity: flag.severity,
+            description: llmResult.risk_rationale, // Use LLM rationale or a default description
+            category: flag.category,
+            suggested_action: flag.suggestedAction,
+          },
+        });
+
+        if (userId) {
+          await tx.auditLogEntry.create({
+            data: {
+              org_id: orgId,
+              user_id: userId,
+              action: "RISK_FLAG_CREATED",
+              entity_type: "RiskFlag",
+              entity_id: createdFlag.id,
+              details: { category: flag.category, severity: flag.severity },
+            },
+          });
+        }
       });
     }
   }

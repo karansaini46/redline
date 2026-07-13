@@ -2,31 +2,39 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/lib/auth";
 
-export async function updateSettings(data: { name: string; email: string; orgName: string }) {
-  const org = await prisma.organization.findFirst();
-  if (!org) throw new Error("Organization not found");
+export async function updateSettings(data: {
+  name: string;
+  email: string;
+  orgName: string;
+  orgId: string;
+}) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
 
-  await prisma.organization.update({
-    where: { id: org.id },
-    data: { name: data.orgName }
+  const orgId = data.orgId;
+  if (!orgId) throw new Error("Missing orgId");
+
+  const membership = await prisma.membership.findUnique({
+    where: { user_id_org_id: { user_id: session.user.id, org_id: orgId } },
   });
 
-  const user = await prisma.user.findFirst({
-    where: {
-      memberships: {
-        some: { org_id: org.id, role: { in: ["OWNER", "ADMIN"] } }
-      }
-    }
-  });
-
-  if (user) {
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { name: data.name, email: data.email }
-    });
+  if (!membership || !["OWNER", "ADMIN"].includes(membership.role)) {
+    throw new Error("Unauthorized: Must be OWNER or ADMIN to update settings");
   }
 
-  // Invalidate cache so that layout.tsx and page.tsx fetch the new data
+  await prisma.$transaction(async (tx) => {
+    await tx.organization.update({
+      where: { id: orgId },
+      data: { name: data.orgName },
+    });
+
+    await tx.user.update({
+      where: { id: session.user.id },
+      data: { name: data.name, email: data.email },
+    });
+  });
+
   revalidatePath("/dashboard", "layout");
 }

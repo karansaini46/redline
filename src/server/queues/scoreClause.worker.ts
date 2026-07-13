@@ -9,21 +9,18 @@ const connection = redisUrl
   : undefined;
 
 export const scoreClauseProcessor = async (
-  job: Job<{ clauseId: string }>,
+  job: Job<{ clauseId: string; userId?: string }>,
 ) => {
-  const { clauseId } = job.data;
+  const { clauseId, userId } = job.data;
 
   try {
     // Add delay to prevent hitting free tier limits (15 RPM)
-    await new Promise(resolve => setTimeout(resolve, 4500));
-    const result = await scoreClause(clauseId);
+    await new Promise((resolve) => setTimeout(resolve, 4500));
+    const result = await scoreClause(clauseId, userId);
     return result;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(
-      `Error scoring clause ${clauseId}:`,
-      errorMessage,
-    );
+    console.error(`Error scoring clause ${clauseId}:`, errorMessage);
     throw error; // Let BullMQ handle retries
   }
 };

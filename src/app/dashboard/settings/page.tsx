@@ -1,27 +1,29 @@
 import { prisma } from "@/lib/prisma";
 import { SettingsClient } from "./_components/settings-client";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function SettingsPage() {
-  const org = await prisma.organization.findFirst();
-  
-  // Try to find the first owner or admin user to populate the default profile
-  // In a real app, this would use the currently authenticated user's session
-  const user = await prisma.user.findFirst({
-    where: {
-      memberships: {
-        some: {
-          org_id: org?.id,
-          role: { in: ['OWNER', 'ADMIN'] }
-        }
-      }
-    }
+  const session = await auth();
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+
+  const membership = await prisma.membership.findFirst({
+    where: { user_id: session.user.id },
+    include: { organization: true, user: true },
   });
 
+  if (!membership) {
+    return <div>No organization found</div>;
+  }
+
   return (
-    <SettingsClient 
-      initialOrgName={org?.name || "Redline HQ"}
-      initialUserName={user?.name || "Karan Saini"}
-      initialUserEmail={user?.email || "karan@redline.com"}
+    <SettingsClient
+      initialOrgName={membership.organization.name || "Redline HQ"}
+      initialUserName={membership.user.name || "User"}
+      initialUserEmail={membership.user.email || "user@example.com"}
+      orgId={membership.org_id}
     />
   );
 }

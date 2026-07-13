@@ -20,9 +20,17 @@ export async function createObligationAction(
   data: z.infer<typeof CreateObligationSchema>,
 ) {
   const session = await auth();
-  if (!session || !session.user || !session.user.id) throw new Error("Unauthorized");
+  if (!session || !session.user || !session.user.id)
+    throw new Error("Unauthorized");
   await requireRole(orgId, session.user.id, "MEMBER");
   const parsed = CreateObligationSchema.parse(data);
+
+  const contract = await prisma.contract.findFirst({
+    where: { id: parsed.contract_id, org_id: orgId },
+  });
+  if (!contract) {
+    throw new Error("Contract not found or access denied");
+  }
 
   const obligation = await prisma.obligation.create({
     data: {
@@ -45,8 +53,16 @@ export async function updateObligationStatusAction(
   status: ObligationStatus,
 ) {
   const session = await auth();
-  if (!session || !session.user || !session.user.id) throw new Error("Unauthorized");
+  if (!session || !session.user || !session.user.id)
+    throw new Error("Unauthorized");
   await requireRole(orgId, session.user.id, "MEMBER");
+
+  const obligation = await prisma.obligation.findFirst({
+    where: { id: obligationId, contract: { org_id: orgId } },
+  });
+  if (!obligation) {
+    throw new Error("Obligation not found or access denied");
+  }
 
   const updated = await prisma.obligation.update({
     where: { id: obligationId },

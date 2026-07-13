@@ -6,7 +6,7 @@ import { z } from "zod";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
-import type { ClauseType } from "@prisma/client";
+
 import { scoreClauseQueue } from "../queues/scoreClause.queue";
 
 const ObligationSchema = z.object({
@@ -42,7 +42,7 @@ const ClauseSchema = z.object({
     "IP_ASSIGNMENT",
     "NON_COMPETE",
     "AUTO_RENEWAL",
-    "OTHER"
+    "OTHER",
   ]),
   text_excerpt: z
     .string()
@@ -141,7 +141,11 @@ async function extractFromChunkWithRetry(
   }
 }
 
-export async function extractClauses(contractVersionId: string, text: string) {
+export async function extractClauses(
+  contractVersionId: string,
+  text: string,
+  userId?: string,
+) {
   if (!text || text.trim().length === 0) {
     return;
   }
@@ -260,7 +264,7 @@ export async function extractClauses(contractVersionId: string, text: string) {
         const created = await tx.clause.create({
           data: record,
         });
-        
+
         createdClauseIds.push(created.id);
 
         // Then update the embedding column via raw SQL
@@ -295,7 +299,7 @@ export async function extractClauses(contractVersionId: string, text: string) {
 
     // Enqueue scoring for each newly created clause
     for (const clauseId of createdClauseIds) {
-      await scoreClauseQueue.add("score-clause", { clauseId });
+      await scoreClauseQueue.add("score-clause", { clauseId, userId });
     }
   }
 }

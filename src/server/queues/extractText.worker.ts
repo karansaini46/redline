@@ -7,7 +7,7 @@ const pdfParse = require("pdf-parse");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const mammoth = require("mammoth");
 import { extractClauses } from "../services/extractClauses";
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
 import { prisma } from "../../lib/prisma";
 const redisUrl = process.env.UPSTASH_REDIS_URL;
@@ -17,13 +17,14 @@ const connection = redisUrl
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const extractTextProcessor = async (
-  job: Job<{ contractVersionId: string; buffer?: any }>,
+  job: Job<{ contractVersionId: string; userId?: string; buffer?: any }>,
 ) => {
-  const { contractVersionId } = job.data;
+  const { contractVersionId, userId } = job.data;
 
   // 1. Fetch ContractVersion
   const version = await prisma.contractVersion.findUnique({
     where: { id: contractVersionId },
+    include: { contract: true },
   });
 
   if (!version) {
@@ -32,17 +33,38 @@ export const extractTextProcessor = async (
 
   try {
     // 2. Mark as EXTRACTING
-    await prisma.contractVersion.update({
-      where: { id: contractVersionId },
-      data: { processing_status: ProcessingStatus.EXTRACTING },
+    await prisma.$transaction(async (tx) => {
+      await tx.contractVersion.update({
+        where: { id: contractVersionId },
+        data: { processing_status: ProcessingStatus.EXTRACTING },
+      });
+      if (userId) {
+        await tx.auditLogEntry.create({
+          data: {
+            org_id: version.contract.org_id,
+            user_id: userId,
+            action: "PROCESSING_STATUS_CHANGED",
+            entity_type: "ContractVersion",
+            entity_id: contractVersionId,
+            details: { status: ProcessingStatus.EXTRACTING },
+          },
+        });
+      }
     });
 
     // 3. Fetch file from storage
-    const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-    const { data, error: downloadError } = await supabase.storage.from('contracts').download(version.storage_path!);
-    
+    const supabase = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    );
+    const { data, error: downloadError } = await supabase.storage
+      .from("contracts")
+      .download(version.storage_path!);
+
     if (downloadError || !data) {
-        throw new Error(`Failed to download file from storage: ${downloadError?.message}`);
+      throw new Error(
+        `Failed to download file from storage: ${downloadError?.message}`,
+      );
     }
     const buffer = Buffer.from(await data.arrayBuffer());
     const isDocx = version.storage_path?.endsWith(".docx");
@@ -83,16 +105,30 @@ export const extractTextProcessor = async (
     }
 
     // 4. Update as EXTRACTED
-    await prisma.contractVersion.update({
-      where: { id: contractVersionId },
-      data: {
-        processing_status: ProcessingStatus.EXTRACTED,
-        content_text: extractedText,
-      },
+    await prisma.$transaction(async (tx) => {
+      await tx.contractVersion.update({
+        where: { id: contractVersionId },
+        data: {
+          processing_status: ProcessingStatus.EXTRACTED,
+          content_text: extractedText,
+        },
+      });
+      if (userId) {
+        await tx.auditLogEntry.create({
+          data: {
+            org_id: version.contract.org_id,
+            user_id: userId,
+            action: "PROCESSING_STATUS_CHANGED",
+            entity_type: "ContractVersion",
+            entity_id: contractVersionId,
+            details: { status: ProcessingStatus.EXTRACTED },
+          },
+        });
+      }
     });
 
     // 5. Extract clauses from text using LangChain + Gemini
-    await extractClauses(contractVersionId, extractedText);
+    await extractClauses(contractVersionId, extractedText, userId);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error(
@@ -101,12 +137,26 @@ export const extractTextProcessor = async (
     );
 
     // Update as FAILED and store the error
-    await prisma.contractVersion.update({
-      where: { id: contractVersionId },
-      data: {
-        processing_status: ProcessingStatus.FAILED,
-        error_message: errorMessage,
-      },
+    await prisma.$transaction(async (tx) => {
+      await tx.contractVersion.update({
+        where: { id: contractVersionId },
+        data: {
+          processing_status: ProcessingStatus.FAILED,
+          error_message: errorMessage,
+        },
+      });
+      if (userId) {
+        await tx.auditLogEntry.create({
+          data: {
+            org_id: version.contract.org_id,
+            user_id: userId,
+            action: "PROCESSING_STATUS_CHANGED",
+            entity_type: "ContractVersion",
+            entity_id: contractVersionId,
+            details: { status: ProcessingStatus.FAILED, error: errorMessage },
+          },
+        });
+      }
     });
 
     throw error; // Let BullMQ handle retries

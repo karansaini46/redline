@@ -82,73 +82,98 @@ export async function uploadContractAction(
     await requireRole(orgId, userId, "MEMBER");
 
     // Process inside a transaction
-    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      let resolvedContractId = contractId;
-      let versionNumber = 1;
+    const result = await prisma.$transaction(
+      async (tx: Prisma.TransactionClient) => {
+        let resolvedContractId = contractId;
+        let versionNumber = 1;
 
-      if (resolvedContractId) {
-        // Re-uploading to an existing contract
-        const existingContract = await tx.contract.findFirst({
-          where: { id: resolvedContractId, org_id: orgId },
-        });
+        if (resolvedContractId) {
+          // Re-uploading to an existing contract
+          const existingContract = await tx.contract.findFirst({
+            where: { id: resolvedContractId, org_id: orgId },
+          });
 
-        if (!existingContract) {
-          throw new Error("Contract not found");
+          if (!existingContract) {
+            throw new Error("Contract not found");
+          }
+
+          const maxVersion = await tx.contractVersion.aggregate({
+            where: { contract_id: resolvedContractId },
+            _max: { version_number: true },
+          });
+
+          versionNumber = (maxVersion._max.version_number || 0) + 1;
+        } else {
+          // Creating a new contract
+          const newContract = await tx.contract.create({
+            data: {
+              org_id: orgId,
+              title: fileName.replace(/\.[^/.]+$/, ""), // Remove extension
+              status: "DRAFT",
+            },
+          });
+          resolvedContractId = newContract.id;
+
+          await tx.auditLogEntry.create({
+            data: {
+              org_id: orgId,
+              user_id: userId,
+              action: "CONTRACT_CREATED",
+              entity_type: "Contract",
+              entity_id: resolvedContractId,
+              details: { title: newContract.title },
+            },
+          });
         }
 
-        const maxVersion = await tx.contractVersion.aggregate({
-          where: { contract_id: resolvedContractId },
-          _max: { version_number: true },
-        });
+        const storagePath = `${orgId}/${resolvedContractId}/v${versionNumber}.${extension}`;
 
-        versionNumber = (maxVersion._max.version_number || 0) + 1;
-      } else {
-        // Creating a new contract
-        const newContract = await tx.contract.create({
+        // Upload to Supabase Storage
+        const { error: uploadError } = await supabase.storage
+          .from("contracts")
+          .upload(storagePath, buffer, {
+            contentType: isPDF
+              ? "application/pdf"
+              : "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            upsert: false, // Never overwrite
+          });
+
+        if (uploadError) {
+          console.error("Supabase upload error:", uploadError);
+          throw new Error("Failed to upload file to storage");
+        }
+
+        // Create new contract version
+        const contractVersion = await tx.contractVersion.create({
           data: {
-            org_id: orgId,
-            title: fileName.replace(/\.[^/.]+$/, ""), // Remove extension
-            status: "DRAFT",
+            contract_id: resolvedContractId,
+            version_number: versionNumber,
+            processing_status: "PENDING",
+            storage_path: storagePath,
           },
         });
-        resolvedContractId = newContract.id;
-      }
 
-      const storagePath = `${orgId}/${resolvedContractId}/v${versionNumber}.${extension}`;
-
-      // Upload to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from("contracts")
-        .upload(storagePath, buffer, {
-          contentType: isPDF
-            ? "application/pdf"
-            : "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-          upsert: false, // Never overwrite
+        await tx.auditLogEntry.create({
+          data: {
+            org_id: orgId,
+            user_id: userId,
+            action: "CONTRACT_VERSION_CREATED",
+            entity_type: "ContractVersion",
+            entity_id: contractVersion.id,
+            details: { version_number: versionNumber },
+          },
         });
 
-      if (uploadError) {
-        console.error("Supabase upload error:", uploadError);
-        throw new Error("Failed to upload file to storage");
-      }
-
-      // Create new contract version
-      const contractVersion = await tx.contractVersion.create({
-        data: {
-          contract_id: resolvedContractId,
-          version_number: versionNumber,
-          processing_status: "PENDING",
-          storage_path: storagePath,
-        },
-      });
-
-      return {
-        contractId: resolvedContractId,
-        versionId: contractVersion.id,
-      };
-    });
+        return {
+          contractId: resolvedContractId,
+          versionId: contractVersion.id,
+        };
+      },
+    );
 
     await extractTextQueue.add("extract-text", {
-      contractVersionId: result.versionId
+      contractVersionId: result.versionId,
+      userId: userId,
     });
 
     return {
