@@ -174,7 +174,7 @@ export function UploadDropzone({
         onClick={() =>
           !selectedFile && !isUploading && fileInputRef.current?.click()
         }
-        onKeyDown={(e) => {
+        onKeyDown={(e: any) => {
           if (e.key === "Enter" && !selectedFile && !isUploading) {
             e.preventDefault();
             fileInputRef.current?.click();

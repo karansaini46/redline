@@ -28,32 +28,33 @@ export function HighRiskTrendChart({ data }: HighRiskTrendChartProps) {
     <div className="h-full w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={formattedData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333333" />
           <XAxis 
             dataKey="displayDate" 
-            tick={{ fontSize: 12, fill: '#6b7280' }} 
+            tick={{ fontSize: 11, fill: '#a3a3a3', fontFamily: 'var(--font-geist-mono)' }} 
             tickLine={false}
-            axisLine={{ stroke: '#e5e7eb' }}
+            axisLine={{ stroke: '#333333' }}
             minTickGap={20}
           />
           <YAxis 
-            tick={{ fontSize: 12, fill: '#6b7280' }}
+            tick={{ fontSize: 11, fill: '#a3a3a3', fontFamily: 'var(--font-geist-mono)' }}
             tickLine={false}
             axisLine={false}
             allowDecimals={false}
           />
           <Tooltip 
-            cursor={{ stroke: '#9ca3af', strokeWidth: 1, strokeDasharray: '3 3' }}
-            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-            labelStyle={{ fontWeight: 'bold', color: '#374151' }}
+            cursor={{ stroke: '#333333', strokeWidth: 1, strokeDasharray: '3 3' }}
+            contentStyle={{ borderRadius: '0px', border: '1px solid #333333', backgroundColor: '#0a0a0a', boxShadow: 'none' }}
+            itemStyle={{ color: '#ffffff' }}
+            labelStyle={{ fontWeight: 'normal', color: '#a3a3a3', fontFamily: 'var(--font-geist-mono)', fontSize: '12px' }}
           />
           <Line 
             type="monotone" 
             dataKey="count" 
-            stroke="#ef4444" 
-            strokeWidth={3}
-            dot={{ r: 4, fill: '#ef4444', strokeWidth: 0 }}
-            activeDot={{ r: 6, strokeWidth: 0 }}
+            stroke="#ffffff" 
+            strokeWidth={2}
+            dot={{ r: 3, fill: '#ffffff', strokeWidth: 0 }}
+            activeDot={{ r: 5, strokeWidth: 0, fill: '#ffffff' }}
             name="High-Risk Contracts"
           />
         </LineChart>

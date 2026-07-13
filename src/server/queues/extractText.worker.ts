@@ -7,7 +7,7 @@ const pdfParse = require("pdf-parse");
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const mammoth = require("mammoth");
 import { extractClauses } from "../services/extractClauses";
-// import { createClient } from '@supabase/supabase-js'; // We would use this to fetch from storage
+import { createClient } from '@supabase/supabase-js';
 
 import { prisma } from "../../lib/prisma";
 const redisUrl = process.env.UPSTASH_REDIS_URL;
@@ -37,18 +37,14 @@ export const extractTextProcessor = async (
       data: { processing_status: ProcessingStatus.EXTRACTING },
     });
 
-    // 3. Fetch file from storage (Simulated for this implementation or fetching locally if we had access)
-    // Real implementation would use:
-    // const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-    // const { data, error } = await supabase.storage.from('contracts').download(version.storage_path!);
-    // const buffer = Buffer.from(await data.arrayBuffer());
-
-    // Since we don't have a real uploaded file buffer here, we simulate parsing a buffer.
-    // In the tests, we pass `job.data.buffer` directly to avoid supabase calls.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const buffer = (job.data as any).buffer
-      ? Buffer.from((job.data as any).buffer)
-      : Buffer.from("");
+    // 3. Fetch file from storage
+    const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+    const { data, error: downloadError } = await supabase.storage.from('contracts').download(version.storage_path!);
+    
+    if (downloadError || !data) {
+        throw new Error(`Failed to download file from storage: ${downloadError?.message}`);
+    }
+    const buffer = Buffer.from(await data.arrayBuffer());
     const isDocx = version.storage_path?.endsWith(".docx");
     let extractedText = "";
 

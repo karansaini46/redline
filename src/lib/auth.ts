@@ -99,6 +99,7 @@ const { handlers, signIn, signOut, auth: nextAuthAuth } = NextAuth({
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const auth = async (...args: any[]) => {
+  // @ts-ignore
   const session = await nextAuthAuth(...args);
   if (!session && process.env.NODE_ENV !== "production") {
     const defaultUser = await prisma.user.findFirst();

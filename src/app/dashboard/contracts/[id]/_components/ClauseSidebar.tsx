@@ -43,13 +43,13 @@ export function ClauseSidebar({
   const getSeverityStyles = (severity: string) => {
     switch (severity) {
       case "CRITICAL":
-        return { icon: <AlertCircle className="w-4 h-4 text-destructive" />, border: "border-l-destructive", bg: "bg-destructive/10 text-destructive" };
+        return { icon: <AlertCircle className="w-4 h-4 text-foreground" />, border: "border-l-foreground", bg: "bg-foreground text-background" };
       case "HIGH":
-        return { icon: <AlertTriangle className="w-4 h-4 text-warning" />, border: "border-l-warning", bg: "bg-warning/10 text-warning" };
+        return { icon: <AlertTriangle className="w-4 h-4 text-muted-foreground" />, border: "border-l-muted-foreground", bg: "bg-surface-elevated text-muted-foreground" };
       case "MEDIUM":
-        return { icon: <AlertTriangle className="w-4 h-4 text-primary" />, border: "border-l-primary", bg: "bg-primary/10 text-primary" };
+        return { icon: <AlertTriangle className="w-4 h-4 text-muted-foreground/70" />, border: "border-l-muted-foreground/70", bg: "bg-surface text-muted-foreground/70" };
       default:
-        return { icon: <Info className="w-4 h-4 text-success" />, border: "border-l-success", bg: "bg-success/10 text-success" };
+        return { icon: <Info className="w-4 h-4 text-muted-foreground/50" />, border: "border-l-muted-foreground/50", bg: "bg-muted/50 text-muted-foreground/50" };
     }
   };
 
@@ -66,9 +66,9 @@ export function ClauseSidebar({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05, duration: 0.3 }}
             className={cn(
-              "rounded-xl border border-border/40 bg-surface text-foreground shadow-sm transition-all duration-300 cursor-pointer overflow-hidden border-l-4",
+              "rounded-xl border border-border/50 bg-surface text-foreground shadow-none transition-all duration-300 cursor-pointer overflow-hidden border-l-2",
               severity.border,
-              isSelected ? "ring-2 ring-primary/50 ring-offset-2 ring-offset-surface scale-[1.02] shadow-md" : "hover:shadow-md hover:border-border/80"
+              isSelected ? "ring-1 ring-border bg-surface-elevated scale-[1.01]" : "hover:bg-muted/10 hover:border-border/80"
             )}
             onClick={() => onSelectClause(clause.id)}
           >
@@ -104,7 +104,7 @@ export function ClauseSidebar({
                         clauseId={clause.id} 
                         contractId={contractId} 
                         orgId={orgId}
-                        initialComments={clause.comments || []} 
+                        initialComments={(clause.comments as any) || []} 
                       />
                     </div>
                   </motion.div>

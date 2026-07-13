@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
-import { DocumentViewer } from "../app/(dashboard)/contracts/[id]/_components/DocumentViewer";
+import { DocumentViewer } from "../app/dashboard/contracts/[id]/_components/DocumentViewer";
 import React from "react";
 
 // Mock react-pdf since it relies on browser canvas APIs not fully supported in jsdom

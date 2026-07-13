@@ -11,6 +11,13 @@ const nextConfig = {
     // Required for react-pdf server-side
     config.resolve.alias.canvas = false;
     config.resolve.alias.encoding = false;
+
+    // Fix for Terser failing to parse the minified pdf.worker file in production builds
+    config.module.rules.push({
+      test: /pdf\.worker\.(min\.)?(js|mjs)$/,
+      type: "asset/resource",
+    });
+
     return config;
   },
 };

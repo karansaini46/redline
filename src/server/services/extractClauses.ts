@@ -7,6 +7,7 @@ import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import type { ClauseType } from "@prisma/client";
+import { scoreClauseQueue } from "../queues/scoreClause.queue";
 
 const ObligationSchema = z.object({
   description: z
@@ -244,6 +245,8 @@ export async function extractClauses(contractVersionId: string, text: string) {
       char_end: c.char_end,
     }));
 
+    const createdClauseIds: string[] = [];
+
     // Prisma doesn't natively return created IDs from createMany in a way that maps easily if there are duplicates,
     // but here we can just create them and fetch, or create them one by one/in a transaction.
     // Or we can just use createMany and then query them back based on text and contract_version_id.
@@ -257,6 +260,8 @@ export async function extractClauses(contractVersionId: string, text: string) {
         const created = await tx.clause.create({
           data: record,
         });
+        
+        createdClauseIds.push(created.id);
 
         // Then update the embedding column via raw SQL
         // Convert embedding array to Postgres vector string: '[0.1, 0.2, ...]'
@@ -287,5 +292,10 @@ export async function extractClauses(contractVersionId: string, text: string) {
         }
       }
     });
+
+    // Enqueue scoring for each newly created clause
+    for (const clauseId of createdClauseIds) {
+      await scoreClauseQueue.add("score-clause", { clauseId });
+    }
   }
 }

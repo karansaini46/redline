@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
-export function Sidebar() {
+export function Sidebar({ orgName = "Organization" }: { orgName?: string }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -36,7 +36,7 @@ export function Sidebar() {
             <Building2 className="size-3.5" />
           </div>
           <div className="flex-1 overflow-hidden">
-            <h3 className="font-medium text-sm truncate text-foreground">Acme Corp</h3>
+            <h3 className="font-medium text-sm truncate text-foreground">{orgName}</h3>
           </div>
           <ChevronDown className="size-4 text-muted-foreground transition-transform group-hover:translate-y-0.5" />
         </div>
@@ -55,22 +55,14 @@ export function Sidebar() {
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "relative flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors group outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                    "relative flex items-center gap-3 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 group outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    isActive 
+                      ? "text-foreground bg-muted/50 shadow-sm border-l-2 border-primary" 
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
                   )}
                 >
-                  {isActive && (
-                    <motion.div
-                      layoutId="sidebar-active"
-                      className="absolute inset-0 rounded-md bg-primary/10 dark:bg-primary/20 z-0"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                  <item.icon className="size-4 relative z-10" />
-                  <span className="relative z-10">{item.name}</span>
+                  <item.icon className={cn("size-4", isActive ? "text-primary" : "text-muted-foreground")} />
+                  <span>{item.name}</span>
                 </Link>
               );
             })}
@@ -79,27 +71,7 @@ export function Sidebar() {
       </div>
       
       {/* Footer Area */}
-      <div className="mt-auto p-4 flex flex-col gap-4">
-        {/* Storage */}
-        <div className="rounded-lg border border-border/50 bg-muted/20 p-3 relative overflow-hidden group hover:border-border/80 transition-colors">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <HardDrive className="size-3.5 text-muted-foreground" />
-              <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Storage</span>
-            </div>
-            <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded-sm">75%</span>
-          </div>
-          <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
-            <motion.div 
-              initial={{ width: 0 }}
-              animate={{ width: "75%" }}
-              transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-              className="h-full bg-primary" 
-            />
-          </div>
-          <p className="text-[11px] text-muted-foreground mt-2">7.5 GB of 10 GB used</p>
-        </div>
-        
+      <div className="mt-auto p-4 border-t border-border/40 space-y-4">
         {/* Premium Active Indicator */}
         <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-primary/5 border border-primary/10">
           <Activity className="size-3.5 text-primary" />

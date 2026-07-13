@@ -178,6 +178,7 @@ export async function generateRiskRationaleAndDeviation(
   standardText?: string,
 ) {
   const model = new ChatGoogleGenerativeAI({
+    apiKey: process.env.GEMINI_API_KEY,
     model: "gemini-2.5-flash",
     temperature: 0,
     maxRetries: 1,

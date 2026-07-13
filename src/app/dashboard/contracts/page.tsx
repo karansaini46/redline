@@ -51,9 +51,14 @@ export default async function ContractsPage({
     if (!isNaN(days)) {
       const targetDate = new Date();
       targetDate.setDate(targetDate.getDate() + days);
-      where.due_date = {
-        lte: targetDate,
-        gte: new Date(),
+      where.obligations = {
+        some: {
+          due_date: {
+            lte: targetDate,
+            gte: new Date(),
+          },
+          status: "OPEN"
+        }
       };
     }
   }

@@ -108,7 +108,7 @@ export function ObligationListClient({
         </div>
         
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <Select value={ownerFilter} onValueChange={setOwnerFilter}>
+          <Select value={ownerFilter} onValueChange={(val) => setOwnerFilter(val || "ALL")}>
             <SelectTrigger className="w-[180px] bg-surface h-9">
               <SelectValue placeholder="All Owners" />
             </SelectTrigger>
@@ -120,7 +120,7 @@ export function ObligationListClient({
             </SelectContent>
           </Select>
           
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || "ALL")}>
             <SelectTrigger className="w-[150px] bg-surface h-9">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>

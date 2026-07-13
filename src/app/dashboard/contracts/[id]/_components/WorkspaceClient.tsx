@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ClauseSidebar } from "./ClauseSidebar";
 
@@ -32,14 +33,16 @@ export function WorkspaceClient({
   fileUrl,
   orgId,
 }: WorkspaceClientProps) {
-  const [selectedClauseId, setSelectedClauseId] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const initialClauseId = searchParams.get("clause");
+  const [selectedClauseId, setSelectedClauseId] = useState<string | null>(initialClauseId);
 
   const selectedClause = clauses.find((c) => c.id === selectedClauseId);
 
   return (
     <div className="flex h-[calc(100vh-4rem)] w-full overflow-hidden bg-background">
       {/* Left Pane: Document Viewer */}
-      <div className="flex-1 border-r border-border/40 relative bg-muted/20">
+      <div className="flex-1 relative bg-background">
         {fileUrl ? (
           <DocumentViewer
             fileUrl={fileUrl}
@@ -53,12 +56,12 @@ export function WorkspaceClient({
       </div>
 
       {/* Right Pane: Clauses & Comments */}
-      <div className="w-[450px] flex flex-col bg-surface h-full shadow-lg z-10 relative">
-        <div className="p-5 border-b border-border/40 bg-surface/50 backdrop-blur-xl">
-          <h2 className="font-semibold text-lg truncate" title={contract.title}>
+      <div className="w-[450px] flex flex-col bg-surface h-full border-l border-border/50 z-10 relative">
+        <div className="p-5 border-b border-border/50 bg-surface">
+          <h2 className="font-serif font-semibold text-lg truncate text-foreground" title={contract.title}>
             {contract.title}
           </h2>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-1 tracking-wider uppercase">
             Version {version.version_number} • {clauses.length} Clauses Extracted
           </p>
         </div>

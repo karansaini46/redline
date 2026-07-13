@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 
 // Configure PDF.js worker
 // Pinned pdfjs-dist to 4.8.69 in package.json due to Next.js 14 Webpack incompatibility with v5+ module loading.
-pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface DocumentViewerProps {
   fileUrl: string;
@@ -31,15 +31,36 @@ export function DocumentViewer({ fileUrl, selectedClause }: DocumentViewerProps)
 
   // Scroll to page when a clause is selected or when document finishes loading
   useEffect(() => {
-    if (selectedClause?.page_number && containerRef.current) {
-      // Small timeout to ensure DOM has updated after numPages is set
-      setTimeout(() => {
+    if (!selectedClause || !containerRef.current) return;
+
+    let attempts = 0;
+    const maxAttempts = 10; // Try for 1.5 seconds
+
+    const tryScroll = () => {
+      // 1. Attempt to scroll to the exact highlighted text if it rendered
+      const highlight = document.querySelector('[data-testid="clause-highlight"]');
+      if (highlight) {
+        highlight.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      // If text layer hasn't rendered the highlight yet, retry
+      if (attempts < maxAttempts) {
+        attempts++;
+        setTimeout(tryScroll, 150);
+        return;
+      }
+
+      // 2. Fallback to scrolling to the page container if we run out of attempts
+      if (selectedClause.page_number) {
         const pageElement = document.getElementById(`page-${selectedClause.page_number}`);
         if (pageElement) {
           pageElement.scrollIntoView({ behavior: "smooth", block: "center" });
         }
-      }, 0);
-    }
+      }
+    };
+
+    tryScroll();
   }, [selectedClause?.id, selectedClause?.page_number, numPages]);
 
   const customTextRenderer = useCallback(
@@ -71,7 +92,7 @@ export function DocumentViewer({ fileUrl, selectedClause }: DocumentViewerProps)
 
   return (
     <div 
-      className="w-full h-full overflow-y-auto bg-muted/30 p-8 flex flex-col items-center"
+      className="w-full h-full overflow-y-auto bg-background p-12 flex flex-col items-center"
       ref={containerRef}
     >
       <Document
@@ -94,14 +115,14 @@ export function DocumentViewer({ fileUrl, selectedClause }: DocumentViewerProps)
           <div 
             key={`page_${index + 1}`} 
             id={`page-${index + 1}`}
-            className="mb-6 shadow-xl rounded-sm overflow-hidden bg-white"
+            className="mb-10 shadow-premium-dark border border-border/50 rounded-2xl overflow-hidden bg-white"
           >
             <Page
               pageNumber={index + 1}
               width={800} // Fixed width for consistent rendering, could be dynamic
               renderTextLayer={true}
               renderAnnotationLayer={false}
-              customTextRenderer={customTextRenderer}
+              customTextRenderer={customTextRenderer as any}
             />
           </div>
         ))}

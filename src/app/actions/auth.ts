@@ -67,7 +67,7 @@ export async function signup(data: { email: string, password: string, name?: str
   
   if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 'dummy_resend_api_key') {
     await resend.emails.send({
-      from: "Acme <onboarding@resend.dev>",
+      from: "Redline <onboarding@resend.dev>",
       to: user.email,
       subject: "Verify your email",
       html: `<p>Click <a href="${verifyUrl}">here</a> to verify.</p>`
@@ -131,7 +131,7 @@ export async function requestPasswordReset(email: string) {
 
   if (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY !== 'dummy_resend_api_key') {
     await resend.emails.send({
-      from: "Acme <onboarding@resend.dev>",
+      from: "Redline <onboarding@resend.dev>",
       to: user.email,
       subject: "Reset your password",
       html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 15 minutes.</p>`

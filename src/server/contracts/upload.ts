@@ -147,12 +147,8 @@ export async function uploadContractAction(
       };
     });
 
-    // Enqueue the job for AI extraction
-    // Since this is dev, simulate passing the buffer for testing the worker locally
-    const bufferArray = Array.from(buffer);
     await extractTextQueue.add("extract-text", {
-      contractVersionId: result.versionId,
-      buffer: bufferArray
+      contractVersionId: result.versionId
     });
 
     return {

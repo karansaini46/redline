@@ -65,7 +65,7 @@ export async function POST(
       process.env.RESEND_API_KEY !== "dummy_resend_api_key"
     ) {
       await resend.emails.send({
-        from: "Acme <onboarding@resend.dev>",
+        from: "Redline <onboarding@resend.dev>",
         to: email,
         subject: "You've been invited!",
         html: `<p>Click <a href="${inviteUrl}">here</a> to join.</p>`,

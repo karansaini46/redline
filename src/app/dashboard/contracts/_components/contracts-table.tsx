@@ -12,7 +12,8 @@ import {
   ArrowUpDown,
   Loader2,
   CheckCircle2,
-  FolderOpen
+  FolderOpen,
+  Trash2
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -37,6 +38,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
+import { toast } from "sonner";
+import { deleteContractAction } from "@/app/actions/contractActions";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type ContractWithVersion = Contract & {
   versions?: ContractVersion[];
@@ -59,6 +70,23 @@ export function ContractsTable({
 
   const [query, setQuery] = React.useState(searchParams.get("q") || "");
   const [isPending, setIsPending] = React.useTransition();
+  const [contractToDelete, setContractToDelete] = React.useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+
+  const confirmDelete = async () => {
+    if (!contractToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      await deleteContractAction(contractToDelete);
+      toast.success("Contract deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete contract");
+    } finally {
+      setIsDeleting(false);
+      setContractToDelete(null);
+    }
+  };
 
   // Debounced Search
   React.useEffect(() => {
@@ -395,12 +423,13 @@ export function ContractsTable({
                   </span>
                 </div>
               </TableHead>
+              <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {contracts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-64 text-center">
+                <TableCell colSpan={7} className="h-64 text-center">
                   <div className="flex justify-center p-4">
                     {totalCount === 0 ? (
                       <EmptyState
@@ -450,6 +479,24 @@ export function ContractsTable({
                   <TableCell className="text-right text-muted-foreground">
                     {format(new Date(contract.created_at), "MMM d, yyyy")}
                   </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setContractToDelete(contract.id);
+                      }}
+                      disabled={isDeleting && contractToDelete === contract.id}
+                    >
+                      {isDeleting && contractToDelete === contract.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))
             )}
@@ -469,6 +516,25 @@ export function ContractsTable({
           {isPending ? "Loading..." : "Load More"}
         </Button>
       </div>
+      <Dialog open={!!contractToDelete} onOpenChange={(open) => !open && setContractToDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Contract</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this contract? This action cannot be undone and will permanently delete all associated data, clauses, and risk assessments.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setContractToDelete(null)} disabled={isDeleting}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete} disabled={isDeleting}>
+              {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </FadeIn>
   );
 }

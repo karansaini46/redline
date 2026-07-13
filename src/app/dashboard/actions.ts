@@ -37,13 +37,15 @@ export async function getExpiringContracts() {
 
   const result = await prisma.$queryRaw<{ days_30: number; days_60: number; days_90: number }[]>`
     SELECT 
-      SUM(CASE WHEN due_date <= NOW() + INTERVAL '30 days' THEN 1 ELSE 0 END)::int as days_30,
-      SUM(CASE WHEN due_date > NOW() + INTERVAL '30 days' AND due_date <= NOW() + INTERVAL '60 days' THEN 1 ELSE 0 END)::int as days_60,
-      SUM(CASE WHEN due_date > NOW() + INTERVAL '60 days' AND due_date <= NOW() + INTERVAL '90 days' THEN 1 ELSE 0 END)::int as days_90
-    FROM "Contract"
-    WHERE org_id = ${orgId} 
-      AND due_date > NOW() 
-      AND due_date <= NOW() + INTERVAL '90 days'
+      COUNT(DISTINCT CASE WHEN o.due_date <= NOW() + INTERVAL '30 days' THEN c.id END)::int as days_30,
+      COUNT(DISTINCT CASE WHEN o.due_date > NOW() + INTERVAL '30 days' AND o.due_date <= NOW() + INTERVAL '60 days' THEN c.id END)::int as days_60,
+      COUNT(DISTINCT CASE WHEN o.due_date > NOW() + INTERVAL '60 days' AND o.due_date <= NOW() + INTERVAL '90 days' THEN c.id END)::int as days_90
+    FROM "Contract" c
+    JOIN "Obligation" o ON c.id = o.contract_id
+    WHERE c.org_id = ${orgId} 
+      AND o.due_date > NOW() 
+      AND o.due_date <= NOW() + INTERVAL '90 days'
+      AND o.status = 'OPEN'
   `;
 
   if (!result || result.length === 0) {
@@ -113,4 +115,49 @@ export async function getDashboardKPIs() {
   });
 
   return { activeContracts, highRiskFlags, pendingRenewals, processing };
+}
+
+export async function getRecentInsights() {
+  const org = await prisma.organization.findFirst();
+  if (!org) return [];
+  
+  const orgId = org.id;
+
+  const insights = await prisma.riskFlag.findMany({
+    where: {
+      clause: {
+        contract_version: {
+          contract: {
+            org_id: orgId
+          }
+        }
+      },
+      severity: { in: ['HIGH', 'CRITICAL'] }
+    },
+    include: {
+      clause: {
+        include: {
+          contract_version: {
+            include: {
+              contract: true
+            }
+          }
+        }
+      }
+    },
+    orderBy: {
+      created_at: 'desc'
+    },
+    take: 5
+  });
+
+  return insights.map(insight => ({
+    id: insight.id,
+    title: insight.category || "Risk Detected",
+    contract: insight.clause.contract_version.contract.title,
+    contractId: insight.clause.contract_version.contract.id,
+    clauseId: insight.clause.id,
+    time: insight.created_at,
+    severity: insight.severity
+  }));
 }

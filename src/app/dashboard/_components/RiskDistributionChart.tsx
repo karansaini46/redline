@@ -12,10 +12,10 @@ interface RiskDistributionChartProps {
 }
 
 const colorMap: Record<RiskSeverity, string> = {
-  LOW: "#22c55e", // green-500
-  MEDIUM: "#eab308", // yellow-500
-  HIGH: "#f97316", // orange-500
-  CRITICAL: "#ef4444", // red-500
+  LOW: "#333333", // muted dark gray
+  MEDIUM: "#666666", // medium gray
+  HIGH: "#a3a3a3", // neutral gray
+  CRITICAL: "#ffffff", // stark white for highest contrast
 };
 
 export function RiskDistributionChart({ data }: RiskDistributionChartProps) {
@@ -42,21 +42,22 @@ export function RiskDistributionChart({ data }: RiskDistributionChartProps) {
     <div className="h-full w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={transformed} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333333" />
           <XAxis 
             dataKey="name" 
-            tick={{ fontSize: 12, fill: '#6b7280' }} 
+            tick={{ fontSize: 11, fill: '#a3a3a3', fontFamily: 'var(--font-geist-mono)' }} 
             tickLine={false}
-            axisLine={{ stroke: '#e5e7eb' }}
+            axisLine={{ stroke: '#333333' }}
           />
           <YAxis 
-            tick={{ fontSize: 12, fill: '#6b7280' }}
+            tick={{ fontSize: 11, fill: '#a3a3a3', fontFamily: 'var(--font-geist-mono)' }}
             tickLine={false}
             axisLine={false}
           />
           <Tooltip 
-            cursor={{ fill: 'transparent' }}
-            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+            cursor={{ fill: '#1a1a1a' }}
+            contentStyle={{ borderRadius: '0px', border: '1px solid #333333', backgroundColor: '#0a0a0a', boxShadow: 'none' }}
+            itemStyle={{ color: '#ffffff' }}
           />
           <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
           <Bar dataKey="LOW" stackId="a" fill={colorMap.LOW} radius={[0, 0, 0, 0]} />

@@ -8,6 +8,11 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)"],
+        serif: ["var(--font-serif)"],
+        mono: ["var(--font-geist-mono)"],
+      },
       colors: {
         border: "var(--border)",
         input: "var(--input)",
@@ -76,11 +81,17 @@ const config: Config = {
         "3xl": ["28px", { lineHeight: "36px" }],
         "4xl": ["36px", { lineHeight: "40px" }],
         "5xl": ["48px", { lineHeight: "48px" }],
+        "6xl": ["60px", { lineHeight: "60px", letterSpacing: "-0.02em" }],
+        "7xl": ["72px", { lineHeight: "72px", letterSpacing: "-0.02em" }],
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      boxShadow: {
+        'premium': '0 40px 80px -20px rgba(0, 0, 0, 0.1)',
+        'premium-dark': '0 40px 80px -20px rgba(0, 0, 0, 0.5)',
       },
       keyframes: {
         "progress-bar": {
@@ -91,19 +102,19 @@ const config: Config = {
           "100%": { transform: "translateX(100%)" }
         },
         "fade-in": {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" }
+          "0%": { opacity: "0", filter: "blur(4px)" },
+          "100%": { opacity: "1", filter: "blur(0px)" }
         },
         "slide-up": {
-          "0%": { opacity: "0", transform: "translateY(10px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" }
+          "0%": { opacity: "0", transform: "translateY(20px)", filter: "blur(4px)" },
+          "100%": { opacity: "1", transform: "translateY(0)", filter: "blur(0px)" }
         }
       },
       animation: {
         "progress-bar": "progress-bar 2s ease-in-out infinite",
         "shimmer": "shimmer 2s infinite",
-        "fade-in": "fade-in 0.3s ease-out forwards",
-        "slide-up": "slide-up 0.4s ease-out forwards"
+        "fade-in": "fade-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "slide-up": "slide-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards"
       }
     },
   },

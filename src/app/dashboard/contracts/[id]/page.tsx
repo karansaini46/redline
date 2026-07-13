@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/server/rbac";
@@ -138,12 +139,14 @@ export default async function ContractPage({ params }: ContractPageProps) {
   }
 
   return (
-    <WorkspaceClient
-      contract={contract}
-      version={latestVersion}
-      clauses={sortedClauses}
-      fileUrl={fileUrl}
-      orgId={contract.org_id}
-    />
+    <Suspense fallback={<div className="flex h-[calc(100vh-4rem)] w-full items-center justify-center">Loading workspace...</div>}>
+      <WorkspaceClient
+        contract={contract}
+        version={latestVersion}
+        clauses={sortedClauses}
+        fileUrl={fileUrl}
+        orgId={contract.org_id}
+      />
+    </Suspense>
   );
 }
