@@ -9,7 +9,11 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { CommandPalette } from "@/components/global/CommandPalette";
 import { ShortcutCheatSheet } from "@/components/global/ShortcutCheatSheet";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-const newsreader = Newsreader({ subsets: ["latin"], variable: "--font-serif", style: ['normal', 'italic'] });
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  style: ["normal", "italic"],
+});
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -23,8 +27,30 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Redline Platform",
-  description: "AI-powered contract analysis",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://redline.com",
+  ),
+  title: {
+    default: "Redline Platform | AI Contract Analysis",
+    template: "%s | Redline Platform",
+  },
+  description:
+    "Redline transforms complex legal documents into structured intelligence. Experience superhuman accuracy without sacrificing the nuance of human craft.",
+  openGraph: {
+    title: "Redline Platform | AI Contract Analysis",
+    description:
+      "Redline transforms complex legal documents into structured intelligence.",
+    url: "/",
+    siteName: "Redline Platform",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Redline Platform | AI Contract Analysis",
+    description:
+      "Redline transforms complex legal documents into structured intelligence.",
+  },
 };
 
 export default function RootLayout({
@@ -33,7 +59,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", inter.variable, newsreader.variable)}>
+    <html
+      lang="en"
+      className={cn("font-sans", inter.variable, newsreader.variable)}
+    >
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${newsreader.variable} antialiased`}
       >

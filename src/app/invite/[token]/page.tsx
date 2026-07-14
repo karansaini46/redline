@@ -1,6 +1,12 @@
 import { acceptInvite } from "@/app/actions/org";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Accept Invitation",
+  description: "Join your workspace team on the Redline Platform.",
+};
 
 export default async function InvitePage({
   params,

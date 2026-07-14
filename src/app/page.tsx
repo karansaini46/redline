@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Script from "next/script";
 import { Button } from "@/components/ui/button";
 
 const staggerContainer = {
@@ -127,8 +128,44 @@ const RealContractShowcase = () => {
 };
 
 export default function LandingPage() {
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "How does Redline analyze contracts?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Redline uses advanced semantic parsing to extract structured clauses and track obligations securely.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Is my data secure?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes, we implement row-level security and encrypt all sensitive document data at rest and in transit.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Can Redline detect deviations from standard playbooks?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Absolutely. Redline instantly flags subtle deviations from your playbook and highlights potential risks before negotiation.",
+        },
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col overflow-hidden selection:bg-foreground selection:text-background">
+      <Script
+        id="faq-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       {/* Premium Top Navigation */}
       <header className="fixed top-0 w-full z-50 border-b bg-background/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -236,6 +273,49 @@ export default function LandingPage() {
                 </p>
               </motion.div>
             ))}
+          </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="py-24 px-6 max-w-4xl mx-auto border-t">
+          <div className="text-center mb-16">
+            <h2 className="font-serif text-3xl md:text-4xl text-foreground mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-muted-foreground font-light text-sm">
+              Common inquiries about our contract intelligence platform.
+            </p>
+          </div>
+          <div className="space-y-8">
+            <div className="group">
+              <h3 className="font-serif text-xl mb-2 group-hover:text-foreground text-foreground/90 transition-colors">
+                How does Redline analyze contracts?
+              </h3>
+              <p className="text-muted-foreground font-light text-sm leading-relaxed">
+                Redline uses advanced semantic parsing to extract structured
+                clauses and track obligations securely.
+              </p>
+            </div>
+            <div className="h-px bg-border/50" />
+            <div className="group">
+              <h3 className="font-serif text-xl mb-2 group-hover:text-foreground text-foreground/90 transition-colors">
+                Is my data secure?
+              </h3>
+              <p className="text-muted-foreground font-light text-sm leading-relaxed">
+                Yes, we implement row-level security and encrypt all sensitive
+                document data at rest and in transit.
+              </p>
+            </div>
+            <div className="h-px bg-border/50" />
+            <div className="group">
+              <h3 className="font-serif text-xl mb-2 group-hover:text-foreground text-foreground/90 transition-colors">
+                Can Redline detect deviations from standard playbooks?
+              </h3>
+              <p className="text-muted-foreground font-light text-sm leading-relaxed">
+                Absolutely. Redline instantly flags subtle deviations from your
+                playbook and highlights potential risks before negotiation.
+              </p>
+            </div>
           </div>
         </section>
       </main>

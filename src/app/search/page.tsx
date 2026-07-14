@@ -1,4 +1,14 @@
 import { ClauseSearch } from "@/components/ClauseSearch";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Search Contract Clauses",
+  description:
+    "Search and filter through your contract clauses with semantic AI.",
+  alternates: {
+    canonical: "/search",
+  },
+};
 
 export default function SearchPage() {
   return (

@@ -9,6 +9,12 @@ import { WorkspaceClient } from "./_components/WorkspaceClient";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, RefreshCw, FileText } from "lucide-react";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contract Details",
+  description: "View and analyze contract clauses and extraction details.",
+};
 
 interface ContractPageProps {
   params: { id: string };
@@ -59,7 +65,9 @@ export default async function ContractPage({ params }: ContractPageProps) {
             </div>
           </div>
           <div>
-            <h2 className="text-2xl font-bold tracking-tight mb-2">Analyzing Document</h2>
+            <h2 className="text-2xl font-bold tracking-tight mb-2">
+              Analyzing Document
+            </h2>
             <p className="text-muted-foreground">
               {latestVersion.processing_status === ProcessingStatus.EXTRACTING
                 ? "Our AI is actively extracting clauses and assessing risk..."
@@ -84,13 +92,18 @@ export default async function ContractPage({ params }: ContractPageProps) {
           <div>
             <h2 className="text-xl font-bold mb-2">Extraction Failed</h2>
             <p className="text-muted-foreground text-sm">
-              {latestVersion.error_message || "An unexpected error occurred while analyzing the document."}
+              {latestVersion.error_message ||
+                "An unexpected error occurred while analyzing the document."}
             </p>
           </div>
           <form
             action={async () => {
               "use server";
-              await retryExtractionAction(latestVersion.id, contract.id, contract.org_id);
+              await retryExtractionAction(
+                latestVersion.id,
+                contract.id,
+                contract.org_id,
+              );
             }}
           >
             <Button type="submit" variant="default" className="gap-2">
@@ -132,14 +145,23 @@ export default async function ContractPage({ params }: ContractPageProps) {
   // 5. Get file URL from Storage
   let fileUrl: string | undefined;
   if (latestVersion.storage_path) {
-    const urlResult = await getSignedUrlAction(latestVersion.storage_path, contract.org_id);
+    const urlResult = await getSignedUrlAction(
+      latestVersion.storage_path,
+      contract.org_id,
+    );
     if (urlResult.success) {
       fileUrl = urlResult.url;
     }
   }
 
   return (
-    <Suspense fallback={<div className="flex h-[calc(100vh-4rem)] w-full items-center justify-center">Loading workspace...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex h-[calc(100vh-4rem)] w-full items-center justify-center">
+          Loading workspace...
+        </div>
+      }
+    >
       <WorkspaceClient
         contract={contract}
         version={latestVersion}

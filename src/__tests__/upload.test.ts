@@ -21,6 +21,12 @@ vi.mock("../lib/supabase", () => ({
   },
 }));
 
+vi.mock("../server/queues/extractText.queue", () => ({
+  extractTextQueue: {
+    add: vi.fn(),
+  },
+}));
+
 vi.mock("../lib/prisma", () => ({
   prisma: {
     $transaction: vi.fn((cb) => cb(prisma)),
@@ -30,6 +36,9 @@ vi.mock("../lib/prisma", () => ({
     },
     contractVersion: {
       aggregate: vi.fn(),
+      create: vi.fn(),
+    },
+    auditLogEntry: {
       create: vi.fn(),
     },
   },

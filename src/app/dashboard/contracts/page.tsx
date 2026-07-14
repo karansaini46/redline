@@ -3,6 +3,13 @@ import { prisma } from "@/lib/prisma";
 import { ContractsTable } from "./_components/contracts-table";
 import { ContractsSkeleton } from "./_components/contracts-skeleton";
 import { ContractStatus, Prisma } from "@prisma/client";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contracts Database",
+  description:
+    "Manage, filter, and review all active contracts and historical documents.",
+};
 
 export default async function ContractsPage({
   searchParams,
@@ -57,8 +64,8 @@ export default async function ContractsPage({
             lte: targetDate,
             gte: new Date(),
           },
-          status: "OPEN"
-        }
+          status: "OPEN",
+        },
       };
     }
   }
@@ -70,7 +77,8 @@ export default async function ContractsPage({
   const orderBy: Prisma.ContractOrderByWithRelationInput[] = [];
 
   if (finalSortBy === "due_date") orderBy.push({ due_date: finalSortDir });
-  else if (finalSortBy === "risk_score") orderBy.push({ risk_score: finalSortDir });
+  else if (finalSortBy === "risk_score")
+    orderBy.push({ risk_score: finalSortDir });
   else orderBy.push({ created_at: finalSortDir });
 
   orderBy.push({ id: "desc" });

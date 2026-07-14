@@ -2,10 +2,8 @@
 import { Worker, Job } from "bullmq";
 import Redis from "ioredis";
 import { ProcessingStatus } from "@prisma/client";
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParse = require("pdf-parse");
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const mammoth = require("mammoth");
+import pdfParse from "pdf-parse";
+import mammoth from "mammoth";
 import { extractClauses } from "../services/extractClauses";
 import { createClient } from "@supabase/supabase-js";
 

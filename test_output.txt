@@ -1,0 +1,61 @@
+
+> redline@0.1.0 test
+> vitest run
+
+◇ injected env (15) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+
+ RUN  v4.1.10 /home/karan/Desktop/redline
+
+stdout | tests/semanticSearch.test.ts > Semantic Search
+Created org: {
+  id: '778685af-1a87-48ef-9902-0ed73d504c38',
+  name: 'Test Org for Semantic Search',
+  created_at: 2026-07-14T09:05:14.584Z,
+  updated_at: 2026-07-14T09:05:14.584Z
+}
+
+stderr | src/__tests__/extractClauses.test.ts > extractClauses service > retries once with a stricter prompt if malformed JSON throws an error, then throws if fails again
+Malformed JSON or output error from LLM, retrying with stricter prompt... Error: Malformed JSON
+    at /home/karan/Desktop/redline/src/__tests__/extractClauses.test.ts:223:30
+    at file:///home/karan/Desktop/redline/node_modules/@vitest/runner/dist/chunk-artifact.js:302:11
+    at file:///home/karan/Desktop/redline/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:26
+    at file:///home/karan/Desktop/redline/node_modules/@vitest/runner/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel (file:///home/karan/Desktop/redline/node_modules/@vitest/runner/dist/chunk-artifact.js:2323:10)
+    at file:///home/karan/Desktop/redline/node_modules/@vitest/runner/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///home/karan/Desktop/redline/node_modules/@vitest/runner/dist/chunk-artifact.js:2272:10)
+    at file:///home/karan/Desktop/redline/node_modules/@vitest/runner/dist/chunk-artifact.js:2955:64
+
+ ✓ src/__tests__/extractClauses.test.ts (2 tests) 424ms
+     ✓ extracts and deduplicates exactly 6 clause types from a long contract with correct page numbers  397ms
+stdout | tests/semanticSearch.test.ts > Semantic Search
+Cleanup orgId: 778685af-1a87-48ef-9902-0ed73d504c38
+
+ ✓ tests/semanticSearch.test.ts (1 test) 1650ms
+stdout | tests/extractText.worker.test.ts > extractTextWorker > should fallback to OCR for a scanned PDF (simulated)
+Detected scanned PDF for version test-version-2 (5 chars/page). Falling back to OCR...
+
+ ✓ src/__tests__/invites.test.ts (3 tests) 80ms
+ ✓ tests/extractText.worker.test.ts (2 tests) 4058ms
+     ✓ should extract text from a text-layer PDF  1887ms
+     ✓ should fallback to OCR for a scanned PDF (simulated)  2161ms
+ ✓ src/__tests__/highlight-scroll.test.tsx (1 test) 127ms
+ ✓ src/__tests__/upload.test.ts (5 tests) 70ms
+ ✓ src/__tests__/auth-transaction.test.ts (2 tests) 18ms
+ ✓ src/__tests__/compareVersions.test.ts (1 test) 43ms
+ ✓ src/__tests__/rbac.test.ts (17 tests) 29ms
+stdout | tests/env.test.ts > env check
+DB: postgresql://postgres.yybxrlirkqkygaunwwtu:k.18%40ns.9n9@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres
+
+ ✓ tests/env.test.ts (1 test) 9ms
+ ✓ src/__tests__/scoreClause.test.ts (9 tests) 45ms
+ ✓ src/__tests__/reminders.test.ts (1 test) 27ms
+ ✓ src/server/risk/__tests__/scoreClause.test.ts (11 tests) 52ms
+ ✓ src/app/dashboard/__tests__/dashboard-queries.test.ts (1 test) 40ms
+
+ Test Files  14 passed (14)
+      Tests  57 passed (57)
+   Start at  14:35:11
+   Duration  17.61s (transform 1.43s, setup 526ms, import 8.94s, tests 6.67s, environment 29.22s)
+

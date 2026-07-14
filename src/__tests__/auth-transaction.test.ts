@@ -31,13 +31,11 @@ describe("Signup Transaction", () => {
   it("creates user, org, and membership atomically", async () => {
     const mockTx = {
       user: {
-        create: vi
-          .fn()
-          .mockResolvedValue({
-            id: "user_1",
-            email: "test@example.com",
-            name: "Test",
-          }),
+        create: vi.fn().mockResolvedValue({
+          id: "user_1",
+          email: "test@example.com",
+          name: "Test",
+        }),
       },
       organization: {
         create: vi
@@ -45,15 +43,14 @@ describe("Signup Transaction", () => {
           .mockResolvedValue({ id: "org_1", name: "Test's Organization" }),
       },
       membership: {
-        create: vi
-          .fn()
-          .mockResolvedValue({
-            id: "mem_1",
-            user_id: "user_1",
-            org_id: "org_1",
-            role: "OWNER",
-          }),
+        create: vi.fn().mockResolvedValue({
+          id: "mem_1",
+          user_id: "user_1",
+          org_id: "org_1",
+          role: "OWNER",
+        }),
       },
+      auditLogEntry: { create: vi.fn().mockResolvedValue({}) },
     };
 
     (prisma.$transaction as any).mockImplementation(async (cb: any) => {
@@ -79,13 +76,11 @@ describe("Signup Transaction", () => {
 
     const mockTx = {
       user: {
-        create: vi
-          .fn()
-          .mockResolvedValue({
-            id: "user_1",
-            email: "test@example.com",
-            name: "Test",
-          }),
+        create: vi.fn().mockResolvedValue({
+          id: "user_1",
+          email: "test@example.com",
+          name: "Test",
+        }),
       },
       organization: {
         create: vi.fn().mockImplementation(() => {
@@ -93,6 +88,7 @@ describe("Signup Transaction", () => {
         }),
       },
       membership: { create: vi.fn().mockResolvedValue({}) },
+      auditLogEntry: { create: vi.fn().mockResolvedValue({}) },
     };
 
     (prisma.$transaction as any).mockImplementation(async (cb: any) => {

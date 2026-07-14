@@ -1,6 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { UploadDropzone } from "@/components/features/upload/UploadDropzone";
 import { FadeIn } from "@/components/ui/motion";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Upload Contract",
+  description:
+    "Securely upload your legal documents for AI-powered processing.",
+};
 
 export default async function UploadPage() {
   const org = await prisma.organization.findFirst();
@@ -19,12 +26,15 @@ export default async function UploadPage() {
   return (
     <FadeIn className="flex flex-col gap-6 w-full max-w-3xl mx-auto pt-8">
       <div className="flex flex-col gap-1 text-center mb-4">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Upload Contract</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">
+          Upload Contract
+        </h1>
         <p className="text-sm text-muted-foreground">
-          Upload a new document (PDF or DOCX) to analyze clauses and track obligations.
+          Upload a new document (PDF or DOCX) to analyze clauses and track
+          obligations.
         </p>
       </div>
-      
+
       <div className="mt-4">
         <UploadDropzone orgId={org.id} />
       </div>

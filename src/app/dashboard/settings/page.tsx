@@ -2,6 +2,13 @@ import { prisma } from "@/lib/prisma";
 import { SettingsClient } from "./_components/settings-client";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Workspace Settings",
+  description:
+    "Configure your workspace, members, and organizational defaults.",
+};
 
 export default async function SettingsPage() {
   const session = await auth();

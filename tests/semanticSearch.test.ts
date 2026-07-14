@@ -5,8 +5,8 @@ import { semanticSearchClauses } from "../src/server/search/semanticSearch";
 import { vi } from "vitest";
 
 const vectors = [
-  [1, ...new Array(767).fill(0)],
-  [0, 1, ...new Array(766).fill(0)],
+  [1, ...new Array(3071).fill(0)],
+  [0, 1, ...new Array(3070).fill(0)],
 ];
 
 vi.mock("@langchain/google-genai", () => {
@@ -43,7 +43,9 @@ describe("Semantic Search", () => {
     });
 
     // 2. Generate embeddings for the clauses
-    const embeddingsModel = new (await import("@langchain/google-genai")).GoogleGenerativeAIEmbeddings({
+    const embeddingsModel = new (
+      await import("@langchain/google-genai")
+    ).GoogleGenerativeAIEmbeddings({
       modelName: "text-embedding-004",
     });
 
