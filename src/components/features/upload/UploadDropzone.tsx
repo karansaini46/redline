@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { uploadContractAction } from "@/server/contracts/upload";
 import {
   UploadCloud,
-  File as FileIcon,
   AlertCircle,
   Loader2,
   X,
@@ -174,6 +173,7 @@ export function UploadDropzone({
         onClick={() =>
           !selectedFile && !isUploading && fileInputRef.current?.click()
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onKeyDown={(e: any) => {
           if (e.key === "Enter" && !selectedFile && !isUploading) {
             e.preventDefault();
@@ -207,16 +207,19 @@ export function UploadDropzone({
               <div className="mb-6 relative flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
                 <UploadCloud className="h-10 w-10 text-primary" />
                 {isDragActive && (
-                  <motion.div 
+                  <motion.div
                     className="absolute inset-0 rounded-full border-2 border-primary"
                     animate={{ scale: [1, 1.2, 1], opacity: [1, 0, 1] }}
                     transition={{ repeat: Infinity, duration: 1.5 }}
                   />
                 )}
               </div>
-              <h3 className="mb-2 text-2xl font-bold tracking-tight">Upload your contract</h3>
+              <h3 className="mb-2 text-2xl font-bold tracking-tight">
+                Upload your contract
+              </h3>
               <p className="mb-6 text-base text-muted-foreground max-w-sm">
-                Drag and drop your file here, or click to browse. We will automatically extract clauses and assess risks.
+                Drag and drop your file here, or click to browse. We will
+                automatically extract clauses and assess risks.
               </p>
               <Button
                 size="lg"
@@ -293,10 +296,25 @@ export function UploadDropzone({
                 </div>
               ) : (
                 <div className="flex justify-center space-x-4">
-                  <Button variant="outline" size="lg" className="rounded-full" onClick={(e) => { e.stopPropagation(); clearFile(); }}>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="rounded-full"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      clearFile();
+                    }}
+                  >
                     Cancel
                   </Button>
-                  <Button size="lg" className="rounded-full shadow-md" onClick={(e) => { e.stopPropagation(); handleUpload(); }}>
+                  <Button
+                    size="lg"
+                    className="rounded-full shadow-md"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUpload();
+                    }}
+                  >
                     Confirm Upload
                   </Button>
                 </div>

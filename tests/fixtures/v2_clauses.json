@@ -1,0 +1,26 @@
+[
+  {
+    "id": "clause-t1",
+    "clause_type": "LIABILITY_CAP",
+    "text": "The liability under this agreement is strictly capped at $100k.",
+    "embedding_text": "[0.9, 0.1, 0.0]"
+  },
+  {
+    "id": "clause-t2",
+    "clause_type": "WARRANTY",
+    "text": "The software is provided with a 90-day functional warranty.",
+    "embedding_text": "[0.1, 0.9, 0.0]"
+  },
+  {
+    "id": "clause-t3",
+    "clause_type": "PAYMENT_TERMS",
+    "text": "Payment shall be made within 30 days.",
+    "embedding_text": "[0.0, 0.0, 1.0]"
+  },
+  {
+    "id": "clause-t4",
+    "clause_type": "INDEMNIFICATION",
+    "text": "Both parties agree to mutual indemnification.",
+    "embedding_text": "[0.5, 0.5, 0.5]"
+  }
+]

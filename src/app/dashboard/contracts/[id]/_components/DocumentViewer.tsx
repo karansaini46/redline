@@ -21,10 +21,13 @@ interface DocumentViewerProps {
   } | null;
 }
 
-export function DocumentViewer({ fileUrl, selectedClause }: DocumentViewerProps) {
+export function DocumentViewer({
+  fileUrl,
+  selectedClause,
+}: DocumentViewerProps) {
   const [numPages, setNumPages] = useState<number>();
   const containerRef = useRef<HTMLDivElement>(null);
-  
+
   function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
     setNumPages(numPages);
   }
@@ -38,7 +41,9 @@ export function DocumentViewer({ fileUrl, selectedClause }: DocumentViewerProps)
 
     const tryScroll = () => {
       // 1. Attempt to scroll to the exact highlighted text if it rendered
-      const highlight = document.querySelector('[data-testid="clause-highlight"]');
+      const highlight = document.querySelector(
+        '[data-testid="clause-highlight"]',
+      );
       if (highlight) {
         highlight.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
@@ -53,7 +58,9 @@ export function DocumentViewer({ fileUrl, selectedClause }: DocumentViewerProps)
 
       // 2. Fallback to scrolling to the page container if we run out of attempts
       if (selectedClause.page_number) {
-        const pageElement = document.getElementById(`page-${selectedClause.page_number}`);
+        const pageElement = document.getElementById(
+          `page-${selectedClause.page_number}`,
+        );
         if (pageElement) {
           pageElement.scrollIntoView({ behavior: "smooth", block: "center" });
         }
@@ -61,19 +68,23 @@ export function DocumentViewer({ fileUrl, selectedClause }: DocumentViewerProps)
     };
 
     tryScroll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedClause?.id, selectedClause?.page_number, numPages]);
 
   const customTextRenderer = useCallback(
     (textItem: { str: string }) => {
       if (!selectedClause || !selectedClause.text) return textItem.str;
-      
+
       const clauseText = selectedClause.text.replace(/\s+/g, " ");
       const itemStr = textItem.str.replace(/\s+/g, " ");
-      
+
       // Basic matching: if a significant portion of the text item is in the clause text
-      if (itemStr.length >= 4 && (clauseText.includes(itemStr) || itemStr.includes(clauseText))) {
+      if (
+        itemStr.length >= 4 &&
+        (clauseText.includes(itemStr) || itemStr.includes(clauseText))
+      ) {
         return (
-          <mark 
+          <mark
             className="bg-yellow-300/60 rounded-sm text-transparent transition-all duration-200 ease-out py-0.5"
             data-testid="clause-highlight"
             data-page-number={selectedClause.page_number}
@@ -84,14 +95,14 @@ export function DocumentViewer({ fileUrl, selectedClause }: DocumentViewerProps)
           </mark>
         );
       }
-      
+
       return textItem.str;
     },
-    [selectedClause] // Recompute when selected clause changes
+    [selectedClause], // Recompute when selected clause changes
   );
 
   return (
-    <div 
+    <div
       className="w-full h-full overflow-y-auto bg-background p-12 flex flex-col items-center"
       ref={containerRef}
     >
@@ -112,8 +123,8 @@ export function DocumentViewer({ fileUrl, selectedClause }: DocumentViewerProps)
         className="max-w-full"
       >
         {Array.from(new Array(numPages), (el, index) => (
-          <div 
-            key={`page_${index + 1}`} 
+          <div
+            key={`page_${index + 1}`}
             id={`page-${index + 1}`}
             className="mb-10 shadow-premium-dark border border-border/50 rounded-2xl overflow-hidden bg-white"
           >
@@ -122,6 +133,7 @@ export function DocumentViewer({ fileUrl, selectedClause }: DocumentViewerProps)
               width={800} // Fixed width for consistent rendering, could be dynamic
               renderTextLayer={true}
               renderAnnotationLayer={false}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               customTextRenderer={customTextRenderer as any}
             />
           </div>

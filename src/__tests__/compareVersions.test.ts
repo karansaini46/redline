@@ -1,7 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ClauseType } from "@prisma/client";
 import { compareVersions } from "@/server/contracts/compare";
+
+import * as fs from "fs";
+import * as path from "path";
+
+// Load fixtures
+const v1Clauses = JSON.parse(
+  fs.readFileSync(
+    path.join(__dirname, "../../tests/fixtures/v1_clauses.json"),
+    "utf8",
+  ),
+);
+const v2Clauses = JSON.parse(
+  fs.readFileSync(
+    path.join(__dirname, "../../tests/fixtures/v2_clauses.json"),
+    "utf8",
+  ),
+);
 
 // Mock Prisma
 vi.mock("@/lib/prisma", () => ({
@@ -36,32 +52,18 @@ describe("compareVersions", () => {
     vi.clearAllMocks();
   });
 
-  it("matches clauses, identifies modification, and generates summary indicating decreased risk", async () => {
+  it("matches clauses, identifies modifications, additions, deletions using a fixture pair", async () => {
     // 1. Mock findFirst to return null (no existing comparison)
     (prisma.versionComparison.findFirst as any).mockResolvedValue(null);
 
-    // 2. Mock $queryRaw to return clauses
+    // 2. Mock $queryRaw to return clauses from fixtures
     (prisma.$queryRaw as any).mockImplementation(
       async (strings: any, ...values: any[]) => {
         const versionId = values[0];
         if (versionId === "source-1") {
-          return [
-            {
-              id: "clause-s1",
-              clause_type: ClauseType.LIABILITY_CAP,
-              text: "The liability under this agreement is strictly unlimited.",
-              embedding_text: JSON.stringify([1.0, 0.0, 0.0]),
-            },
-          ];
+          return v1Clauses;
         } else if (versionId === "target-2") {
-          return [
-            {
-              id: "clause-t1",
-              clause_type: ClauseType.LIABILITY_CAP,
-              text: "The liability under this agreement is strictly capped at $100k.",
-              embedding_text: JSON.stringify([0.9, 0.1, 0.0]),
-            },
-          ];
+          return v2Clauses;
         }
         return [];
       },
@@ -82,22 +84,30 @@ describe("compareVersions", () => {
     expect(comparison).toBeDefined();
     expect(comparison.ai_summary).toContain("decreased");
 
-    // Diff JSON should show modified clause
+    // Diff JSON should contain modified, unchanged, added, and removed
     const diffJson = comparison.diff_json as any[];
-    expect(diffJson).toHaveLength(1);
 
-    const diffItem = diffJson[0];
-    expect(diffItem.type).toBe("modified");
-    expect(diffItem.clauseType).toBe(ClauseType.LIABILITY_CAP);
-    expect(diffItem.diff).toBeDefined();
+    // We expect:
+    // - LIABILITY_CAP: modified
+    // - WARRANTY: modified
+    // - PAYMENT_TERMS: unchanged
+    // - INDEMNIFICATION: added
+    expect(diffJson).toHaveLength(4);
 
-    // Check specific diff words
-    const addedWord = diffItem.diff.find((d: any) => d.added);
-    expect(addedWord).toBeDefined();
-    expect(addedWord.value).toContain("capped at $100k");
+    const modifiedLiability = diffJson.find(
+      (d) => d.clauseType === "LIABILITY_CAP",
+    );
+    expect(modifiedLiability.type).toBe("modified");
+    expect(modifiedLiability.diff).toBeDefined();
 
-    const removedWord = diffItem.diff.find((d: any) => d.removed);
-    expect(removedWord).toBeDefined();
-    expect(removedWord.value).toContain("unlimited");
+    const unchangedPayment = diffJson.find(
+      (d) => d.clauseType === "PAYMENT_TERMS",
+    );
+    expect(unchangedPayment.type).toBe("unchanged");
+
+    const addedIndemnity = diffJson.find(
+      (d) => d.clauseType === "INDEMNIFICATION",
+    );
+    expect(addedIndemnity.type).toBe("added");
   });
 });

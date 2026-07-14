@@ -1,0 +1,9 @@
+
+> redline@0.1.0 dev
+> next dev -p 3005
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3005
+  - Environments: .env
+
+ ✓ Starting...

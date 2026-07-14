@@ -2,10 +2,14 @@
 
 import * as React from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Contract, ContractStatus, ContractVersion, ProcessingStatus } from "@prisma/client";
+import {
+  Contract,
+  ContractStatus,
+  ContractVersion,
+  ProcessingStatus,
+} from "@prisma/client";
 import {
   Search,
-  FileText,
   XCircle,
   ArrowUp,
   ArrowDown,
@@ -13,14 +17,14 @@ import {
   Loader2,
   CheckCircle2,
   FolderOpen,
-  Trash2
+  Trash2,
 } from "lucide-react";
 import { format } from "date-fns";
 
 import { Input } from "@/components/ui/input";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FadeIn, StaggerContainer, StaggerItem, ScaleHover } from "@/components/ui/motion";
+import { FadeIn } from "@/components/ui/motion";
 import { EmptyState } from "@/components/ui/empty-state";
 import {
   Table,
@@ -37,7 +41,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import Link from "next/link";
 import { toast } from "sonner";
 import { deleteContractAction } from "@/app/actions/contractActions";
 import {
@@ -70,17 +73,19 @@ export function ContractsTable({
 
   const [query, setQuery] = React.useState(searchParams.get("q") || "");
   const [isPending, setIsPending] = React.useTransition();
-  const [contractToDelete, setContractToDelete] = React.useState<string | null>(null);
+  const [contractToDelete, setContractToDelete] = React.useState<string | null>(
+    null,
+  );
   const [isDeleting, setIsDeleting] = React.useState(false);
 
   const confirmDelete = async () => {
     if (!contractToDelete) return;
-    
+
     setIsDeleting(true);
     try {
       await deleteContractAction(contractToDelete);
       toast.success("Contract deleted successfully");
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete contract");
     } finally {
       setIsDeleting(false);
@@ -206,7 +211,10 @@ export function ContractsTable({
       );
     if (score >= 70)
       return (
-        <Badge variant="outline" className="font-medium bg-destructive/10 text-destructive border-transparent hover:bg-destructive/20">
+        <Badge
+          variant="outline"
+          className="font-medium bg-destructive/10 text-destructive border-transparent hover:bg-destructive/20"
+        >
           High Risk
         </Badge>
       );
@@ -232,7 +240,14 @@ export function ContractsTable({
   const getStatusBadge = (status: ContractStatus) => {
     switch (status) {
       case "DRAFT":
-        return <Badge variant="secondary" className="bg-muted text-muted-foreground hover:bg-muted">Draft</Badge>;
+        return (
+          <Badge
+            variant="secondary"
+            className="bg-muted text-muted-foreground hover:bg-muted"
+          >
+            Draft
+          </Badge>
+        );
       case "IN_REVIEW":
         return (
           <Badge
@@ -262,7 +277,10 @@ export function ContractsTable({
         );
       case "EXECUTED":
         return (
-          <Badge variant="default" className="bg-primary text-primary-foreground shadow-sm">
+          <Badge
+            variant="default"
+            className="bg-primary text-primary-foreground shadow-sm"
+          >
             Executed
           </Badge>
         );
@@ -274,15 +292,50 @@ export function ContractsTable({
   const getProcessingBadge = (status?: ProcessingStatus) => {
     switch (status) {
       case "PENDING":
-        return <Badge variant="secondary" className="text-muted-foreground bg-muted hover:bg-muted"><Loader2 className="mr-1 h-3 w-3 animate-spin" /> Pending</Badge>;
+        return (
+          <Badge
+            variant="secondary"
+            className="text-muted-foreground bg-muted hover:bg-muted"
+          >
+            <Loader2 className="mr-1 h-3 w-3 animate-spin" /> Pending
+          </Badge>
+        );
       case "EXTRACTING":
-        return <Badge variant="outline" className="border-transparent bg-primary/10 text-primary hover:bg-primary/20"><Loader2 className="mr-1 h-3 w-3 animate-spin" /> Processing...</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="border-transparent bg-primary/10 text-primary hover:bg-primary/20"
+          >
+            <Loader2 className="mr-1 h-3 w-3 animate-spin" /> Processing...
+          </Badge>
+        );
       case "EXTRACTED":
-        return <Badge variant="outline" className="border-transparent bg-success/10 text-success hover:bg-success/20"><CheckCircle2 className="mr-1 h-3 w-3" /> Complete</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="border-transparent bg-success/10 text-success hover:bg-success/20"
+          >
+            <CheckCircle2 className="mr-1 h-3 w-3" /> Complete
+          </Badge>
+        );
       case "FAILED":
-        return <Badge variant="outline" className="border-transparent bg-destructive/10 text-destructive hover:bg-destructive/20"><XCircle className="mr-1 h-3 w-3" /> Failed</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="border-transparent bg-destructive/10 text-destructive hover:bg-destructive/20"
+          >
+            <XCircle className="mr-1 h-3 w-3" /> Failed
+          </Badge>
+        );
       default:
-        return <Badge variant="secondary" className="bg-muted text-muted-foreground hover:bg-muted">Unknown</Badge>;
+        return (
+          <Badge
+            variant="secondary"
+            className="bg-muted text-muted-foreground hover:bg-muted"
+          >
+            Unknown
+          </Badge>
+        );
     }
   };
 
@@ -438,7 +491,8 @@ export function ContractsTable({
                         description="Upload your first contract to get started with AI analysis."
                         primaryAction={{
                           label: "Upload Contract",
-                          onClick: () => router.push("/dashboard/contracts/upload")
+                          onClick: () =>
+                            router.push("/dashboard/contracts/upload"),
                         }}
                       />
                     ) : (
@@ -446,13 +500,17 @@ export function ContractsTable({
                         icon={Search}
                         title="No matching contracts found"
                         description="Try adjusting your filters or search query."
-                        primaryAction={hasFilters ? {
-                          label: "Clear filters",
-                          onClick: () => {
-                            setQuery("");
-                            router.push(pathname);
-                          }
-                        } : undefined}
+                        primaryAction={
+                          hasFilters
+                            ? {
+                                label: "Clear filters",
+                                onClick: () => {
+                                  setQuery("");
+                                  router.push(pathname);
+                                },
+                              }
+                            : undefined
+                        }
                       />
                     )}
                   </div>
@@ -462,14 +520,20 @@ export function ContractsTable({
               contracts.map((contract) => (
                 <TableRow
                   key={contract.id}
-                  onClick={() => router.push(`/dashboard/contracts/${contract.id}`)}
+                  onClick={() =>
+                    router.push(`/dashboard/contracts/${contract.id}`)
+                  }
                   className="h-16 group hover:bg-muted/50 hover:shadow-sm cursor-pointer transition-all duration-200"
                 >
                   <TableCell className="font-medium group-hover:text-primary transition-colors">
                     {contract.title}
                   </TableCell>
                   <TableCell>{getStatusBadge(contract.status)}</TableCell>
-                  <TableCell>{getProcessingBadge(contract.versions?.[0]?.processing_status)}</TableCell>
+                  <TableCell>
+                    {getProcessingBadge(
+                      contract.versions?.[0]?.processing_status,
+                    )}
+                  </TableCell>
                   <TableCell>{getRiskBadge(contract.risk_score)}</TableCell>
                   <TableCell className="text-muted-foreground">
                     {contract.due_date
@@ -516,20 +580,35 @@ export function ContractsTable({
           {isPending ? "Loading..." : "Load More"}
         </Button>
       </div>
-      <Dialog open={!!contractToDelete} onOpenChange={(open) => !open && setContractToDelete(null)}>
+      <Dialog
+        open={!!contractToDelete}
+        onOpenChange={(open) => !open && setContractToDelete(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Contract</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this contract? This action cannot be undone and will permanently delete all associated data, clauses, and risk assessments.
+              Are you sure you want to delete this contract? This action cannot
+              be undone and will permanently delete all associated data,
+              clauses, and risk assessments.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setContractToDelete(null)} disabled={isDeleting}>
+            <Button
+              variant="outline"
+              onClick={() => setContractToDelete(null)}
+              disabled={isDeleting}
+            >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmDelete} disabled={isDeleting}>
-              {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
               Delete
             </Button>
           </DialogFooter>

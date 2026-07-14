@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { ClauseCommentThread } from "./ClauseCommentThread";
-import { AlertCircle, AlertTriangle, Info, FileText, FileSearch } from "lucide-react";
+import { AlertCircle, AlertTriangle, Info, FileSearch } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -43,13 +43,29 @@ export function ClauseSidebar({
   const getSeverityStyles = (severity: string) => {
     switch (severity) {
       case "CRITICAL":
-        return { icon: <AlertCircle className="w-4 h-4 text-foreground" />, border: "border-l-foreground", bg: "bg-foreground text-background" };
+        return {
+          icon: <AlertCircle className="w-4 h-4 text-foreground" />,
+          border: "border-l-foreground",
+          bg: "bg-foreground text-background",
+        };
       case "HIGH":
-        return { icon: <AlertTriangle className="w-4 h-4 text-muted-foreground" />, border: "border-l-muted-foreground", bg: "bg-surface-elevated text-muted-foreground" };
+        return {
+          icon: <AlertTriangle className="w-4 h-4 text-muted-foreground" />,
+          border: "border-l-muted-foreground",
+          bg: "bg-surface-elevated text-muted-foreground",
+        };
       case "MEDIUM":
-        return { icon: <AlertTriangle className="w-4 h-4 text-muted-foreground/70" />, border: "border-l-muted-foreground/70", bg: "bg-surface text-muted-foreground/70" };
+        return {
+          icon: <AlertTriangle className="w-4 h-4 text-muted-foreground/70" />,
+          border: "border-l-muted-foreground/70",
+          bg: "bg-surface text-muted-foreground/70",
+        };
       default:
-        return { icon: <Info className="w-4 h-4 text-muted-foreground/50" />, border: "border-l-muted-foreground/50", bg: "bg-muted/50 text-muted-foreground/50" };
+        return {
+          icon: <Info className="w-4 h-4 text-muted-foreground/50" />,
+          border: "border-l-muted-foreground/50",
+          bg: "bg-muted/50 text-muted-foreground/50",
+        };
     }
   };
 
@@ -58,7 +74,7 @@ export function ClauseSidebar({
       {clauses.map((clause, index) => {
         const isSelected = selectedClauseId === clause.id;
         const severity = getSeverityStyles(clause.risk_severity || "LOW");
-        
+
         return (
           <motion.div
             key={clause.id}
@@ -68,7 +84,9 @@ export function ClauseSidebar({
             className={cn(
               "rounded-xl border border-border/50 bg-surface text-foreground shadow-none transition-all duration-300 cursor-pointer overflow-hidden border-l-2",
               severity.border,
-              isSelected ? "ring-1 ring-border bg-surface-elevated scale-[1.01]" : "hover:bg-muted/10 hover:border-border/80"
+              isSelected
+                ? "ring-1 ring-border bg-surface-elevated scale-[1.01]"
+                : "hover:bg-muted/10 hover:border-border/80",
             )}
             onClick={() => onSelectClause(clause.id)}
           >
@@ -81,15 +99,27 @@ export function ClauseSidebar({
                   </span>
                 </div>
                 {clause.risk_score && (
-                  <span className={cn("text-xs font-semibold px-2 py-1 rounded-full", severity.bg)}>
+                  <span
+                    className={cn(
+                      "text-xs font-semibold px-2 py-1 rounded-full",
+                      severity.bg,
+                    )}
+                  >
                     Risk: {clause.risk_score}
                   </span>
                 )}
               </div>
-              <p className={cn("text-xs leading-relaxed transition-all duration-300", isSelected ? "text-foreground" : "text-muted-foreground line-clamp-3")}>
+              <p
+                className={cn(
+                  "text-xs leading-relaxed transition-all duration-300",
+                  isSelected
+                    ? "text-foreground"
+                    : "text-muted-foreground line-clamp-3",
+                )}
+              >
                 {clause.text}
               </p>
-              
+
               <AnimatePresence>
                 {isSelected && (
                   <motion.div
@@ -99,12 +129,15 @@ export function ClauseSidebar({
                     className="overflow-hidden"
                   >
                     <div className="mt-4 pt-4 border-t border-border/50">
-                      <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-3 tracking-wider">Comments</h4>
-                      <ClauseCommentThread 
-                        clauseId={clause.id} 
-                        contractId={contractId} 
+                      <h4 className="text-xs font-semibold uppercase text-muted-foreground mb-3 tracking-wider">
+                        Comments
+                      </h4>
+                      <ClauseCommentThread
+                        clauseId={clause.id}
+                        contractId={contractId}
                         orgId={orgId}
-                        initialComments={(clause.comments as any) || []} 
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        initialComments={(clause.comments as any) || []}
                       />
                     </div>
                   </motion.div>

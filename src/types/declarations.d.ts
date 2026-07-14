@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 declare module "lucide-react" {
   export type IconProps = import("react").SVGProps<SVGSVGElement> & {
     size?: string | number;
@@ -6,7 +7,7 @@ declare module "lucide-react" {
   };
   export type Icon = import("react").FC<IconProps>;
   export type LucideIcon = Icon;
-  
+
   export const Activity: Icon;
   export const AlertCircle: Icon;
   export const AlertTriangle: Icon;
@@ -138,20 +139,32 @@ declare module "framer-motion" {
     className?: string;
     [key: string]: any;
   }
-  
+
   export type HTMLMotionProps<T = any> = any;
-  
+
   export const motion: {
-    [K in keyof import("react").ReactHTML]: import("react").ForwardRefExoticComponent<import("react").PropsWithoutRef<any> & import("react").RefAttributes<any>>;
+    [
+      K in keyof import("react").ReactHTML
+    ]: import("react").ForwardRefExoticComponent<
+      import("react").PropsWithoutRef<any> & import("react").RefAttributes<any>
+    >;
   } & {
-    (Component: import("react").ComponentType<any> | string): import("react").ForwardRefExoticComponent<import("react").PropsWithoutRef<any> & import("react").RefAttributes<any>>;
+    (
+      Component: import("react").ComponentType<any> | string,
+    ): import("react").ForwardRefExoticComponent<
+      import("react").PropsWithoutRef<any> & import("react").RefAttributes<any>
+    >;
   };
-  
+
   export const AnimatePresence: import("react").ComponentType<any>;
   export const LayoutGroup: import("react").ComponentType<any>;
   export const useAnimation: () => any;
   export const useScroll: (options?: any) => any;
-  export const useTransform: (value: any, inputRange: any, outputRange: any) => any;
+  export const useTransform: (
+    value: any,
+    inputRange: any,
+    outputRange: any,
+  ) => any;
   export const useSpring: (source: any, config?: any) => any;
   export const useReducedMotion: () => boolean | null;
 }
@@ -161,12 +174,16 @@ declare module "bullmq" {
     constructor(name: string, opts?: any);
     add(name: string, data: any, opts?: any): Promise<any>;
   }
-  
+
   export class Worker {
-    constructor(name: string, processor: (job: Job) => Promise<any>, opts?: any);
+    constructor(
+      name: string,
+      processor: (job: Job) => Promise<any>,
+      opts?: any,
+    );
     on(event: string, callback: (...args: any[]) => void): this;
   }
-  
+
   export interface Job<T = any> {
     id: string;
     name: string;

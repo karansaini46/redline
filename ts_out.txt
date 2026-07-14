@@ -1,0 +1,101 @@
+src/__tests__/highlight-scroll.test.tsx(3,32): error TS2307: Cannot find module '../app/(dashboard)/contracts/[id]/_components/DocumentViewer' or its corresponding type declarations.
+src/app/dashboard/_components/AIProcessingTimeline.tsx(4,24): error TS7016: Could not find a declaration file for module 'framer-motion'. '/home/karan/Desktop/redline/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/framer-motion` if it exists or add a new declaration (.d.ts) file containing `declare module 'framer-motion';`
+src/app/dashboard/_components/AIProcessingTimeline.tsx(5,67): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/app/dashboard/_components/ExpiringContractsWidget.tsx(3,46): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/app/dashboard/_components/RecentInsightsFeed.tsx(4,63): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/app/dashboard/contracts/[id]/_components/ClauseCommentThread.tsx(7,22): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/app/dashboard/contracts/[id]/_components/ClauseSidebar.tsx(5,72): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/app/dashboard/contracts/[id]/_components/ClauseSidebar.tsx(8,41): error TS7016: Could not find a declaration file for module 'framer-motion'. '/home/karan/Desktop/redline/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/framer-motion` if it exists or add a new declaration (.d.ts) file containing `declare module 'framer-motion';`
+src/app/dashboard/contracts/[id]/_components/ClauseSidebar.tsx(107,25): error TS2322: Type '{ id: string; created_at: Date; updated_at: Date; user_id: string; clause_id: string; content: string; }[]' is not assignable to type 'Comment[]'.
+  Property 'user' is missing in type '{ id: string; created_at: Date; updated_at: Date; user_id: string; clause_id: string; content: string; }' but required in type 'Comment'.
+src/app/dashboard/contracts/[id]/_components/DocumentViewer.tsx(7,25): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/app/dashboard/contracts/[id]/_components/DocumentViewer.tsx(104,15): error TS2322: Type '(textItem: { str: string; }) => string | JSX.Element' is not assignable to type 'CustomTextRenderer'.
+  Type 'string | Element' is not assignable to type 'string'.
+    Type 'Element' is not assignable to type 'string'.
+src/app/dashboard/contracts/[id]/page.tsx(9,50): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/app/dashboard/contracts/_components/contracts-table.tsx(16,8): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/app/dashboard/layout.tsx(5,22): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/app/dashboard/layout.tsx(24,27): error TS2322: Type '{ children: Element; asChild: true; }' is not assignable to type 'IntrinsicAttributes & Props<unknown>'.
+  Property 'asChild' does not exist on type 'IntrinsicAttributes & Props<unknown>'.
+src/app/dashboard/obligations/_components/ObligationListClient.tsx(9,98): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/app/dashboard/obligations/_components/ObligationListClient.tsx(111,39): error TS2322: Type 'Dispatch<SetStateAction<string>>' is not assignable to type '(value: string | null, eventDetails: SelectRootChangeEventDetails) => void'.
+  Types of parameters 'value' and 'value' are incompatible.
+    Type 'string | null' is not assignable to type 'SetStateAction<string>'.
+      Type 'null' is not assignable to type 'SetStateAction<string>'.
+src/app/dashboard/obligations/_components/ObligationListClient.tsx(123,40): error TS2322: Type 'Dispatch<SetStateAction<string>>' is not assignable to type '(value: string | null, eventDetails: SelectRootChangeEventDetails) => void'.
+  Types of parameters 'value' and 'value' are incompatible.
+    Type 'string | null' is not assignable to type 'SetStateAction<string>'.
+      Type 'null' is not assignable to type 'SetStateAction<string>'.
+src/app/dashboard/page.tsx(6,90): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/app/page.tsx(3,24): error TS7016: Could not find a declaration file for module 'framer-motion'. '/home/karan/Desktop/redline/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/framer-motion` if it exists or add a new declaration (.d.ts) file containing `declare module 'framer-motion';`
+src/app/page.tsx(6,55): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/app/page.tsx(42,21): error TS2322: Type '{ children: Element; asChild: true; className: string; }' is not assignable to type 'IntrinsicAttributes & ButtonProps & VariantProps<(props?: (ConfigVariants<{ variant: { default: string; outline: string; secondary: string; ghost: string; destructive: string; link: string; }; size: { ...; }; }> & ClassProp) | undefined) => string>'.
+  Property 'asChild' does not exist on type 'IntrinsicAttributes & ButtonProps & VariantProps<(props?: (ConfigVariants<{ variant: { default: string; outline: string; secondary: string; ghost: string; destructive: string; link: string; }; size: { ...; }; }> & ClassProp) | undefined) => string>'.
+src/app/page.tsx(69,23): error TS2322: Type '{ children: Element; asChild: true; size: "lg"; className: string; }' is not assignable to type 'IntrinsicAttributes & ButtonProps & VariantProps<(props?: (ConfigVariants<{ variant: { default: string; outline: string; secondary: string; ghost: string; destructive: string; link: string; }; size: { ...; }; }> & ClassProp) | undefined) => string>'.
+  Property 'asChild' does not exist on type 'IntrinsicAttributes & ButtonProps & VariantProps<(props?: (ConfigVariants<{ variant: { default: string; outline: string; secondary: string; ghost: string; destructive: string; link: string; }; size: { ...; }; }> & ClassProp) | undefined) => string>'.
+src/app/page.tsx(74,23): error TS2322: Type '{ children: Element; asChild: true; size: "lg"; variant: "outline"; className: string; }' is not assignable to type 'IntrinsicAttributes & ButtonProps & VariantProps<(props?: (ConfigVariants<{ variant: { default: string; outline: string; secondary: string; ghost: string; destructive: string; link: string; }; size: { ...; }; }> & ClassProp) | undefined) => string>'.
+  Property 'asChild' does not exist on type 'IntrinsicAttributes & ButtonProps & VariantProps<(props?: (ConfigVariants<{ variant: { default: string; outline: string; secondary: string; ghost: string; destructive: string; link: string; }; size: { ...; }; }> & ClassProp) | undefined) => string>'.
+src/app/page.tsx(193,23): error TS2322: Type '{ children: Element; asChild: true; size: "lg"; className: string; }' is not assignable to type 'IntrinsicAttributes & ButtonProps & VariantProps<(props?: (ConfigVariants<{ variant: { default: string; outline: string; secondary: string; ghost: string; destructive: string; link: string; }; size: { ...; }; }> & ClassProp) | undefined) => string>'.
+  Property 'asChild' does not exist on type 'IntrinsicAttributes & ButtonProps & VariantProps<(props?: (ConfigVariants<{ variant: { default: string; outline: string; secondary: string; ghost: string; destructive: string; link: string; }; size: { ...; }; }> & ClassProp) | undefined) => string>'.
+src/components/contracts/DiffViewer.tsx(6,41): error TS7016: Could not find a declaration file for module 'framer-motion'. '/home/karan/Desktop/redline/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/framer-motion` if it exists or add a new declaration (.d.ts) file containing `declare module 'framer-motion';`
+src/components/contracts/DiffViewer.tsx(7,67): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/components/features/upload/UploadDropzone.tsx(14,8): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/components/features/upload/UploadDropzone.tsx(16,41): error TS7016: Could not find a declaration file for module 'framer-motion'. '/home/karan/Desktop/redline/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/framer-motion` if it exists or add a new declaration (.d.ts) file containing `declare module 'framer-motion';`
+src/components/features/upload/UploadDropzone.tsx(177,21): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/components/global/CommandPalette.tsx(24,8): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/components/global/Sidebar.tsx(16,8): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/components/global/Sidebar.tsx(17,24): error TS7016: Could not find a declaration file for module 'framer-motion'. '/home/karan/Desktop/redline/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/framer-motion` if it exists or add a new declaration (.d.ts) file containing `declare module 'framer-motion';`
+src/components/global/TopNavbar.tsx(3,47): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/components/ui/card.tsx(2,41): error TS7016: Could not find a declaration file for module 'framer-motion'. '/home/karan/Desktop/redline/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/framer-motion` if it exists or add a new declaration (.d.ts) file containing `declare module 'framer-motion';`
+src/components/ui/command.tsx(15,39): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/components/ui/dialog.tsx(8,23): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/components/ui/empty-state.tsx(5,28): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/components/ui/motion.tsx(3,41): error TS7016: Could not find a declaration file for module 'framer-motion'. '/home/karan/Desktop/redline/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/framer-motion` if it exists or add a new declaration (.d.ts) file containing `declare module 'framer-motion';`
+src/components/ui/select.tsx(7,59): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/components/ui/sheet.tsx(8,23): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/components/ui/sonner.tsx(5,89): error TS7016: Could not find a declaration file for module 'lucide-react'. '/home/karan/Desktop/redline/node_modules/lucide-react/dist/cjs/lucide-react.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lucide-react` if it exists or add a new declaration (.d.ts) file containing `declare module 'lucide-react';`
+src/lib/auth.ts(102,38): error TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+src/server/contracts/retry.ts(7,23): error TS7016: Could not find a declaration file for module 'bullmq'. '/home/karan/Desktop/redline/node_modules/bullmq/dist/cjs/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/bullmq` if it exists or add a new declaration (.d.ts) file containing `declare module 'bullmq';`
+src/server/queues/extractText.queue.ts(1,23): error TS7016: Could not find a declaration file for module 'bullmq'. '/home/karan/Desktop/redline/node_modules/bullmq/dist/cjs/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/bullmq` if it exists or add a new declaration (.d.ts) file containing `declare module 'bullmq';`
+src/server/queues/extractText.worker.ts(2,29): error TS7016: Could not find a declaration file for module 'bullmq'. '/home/karan/Desktop/redline/node_modules/bullmq/dist/cjs/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/bullmq` if it exists or add a new declaration (.d.ts) file containing `declare module 'bullmq';`
+src/server/queues/reminders.queue.ts(1,23): error TS7016: Could not find a declaration file for module 'bullmq'. '/home/karan/Desktop/redline/node_modules/bullmq/dist/cjs/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/bullmq` if it exists or add a new declaration (.d.ts) file containing `declare module 'bullmq';`
+src/server/queues/reminders.worker.ts(1,24): error TS7016: Could not find a declaration file for module 'bullmq'. '/home/karan/Desktop/redline/node_modules/bullmq/dist/cjs/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/bullmq` if it exists or add a new declaration (.d.ts) file containing `declare module 'bullmq';`
+src/server/queues/reminders.worker.ts(97,12): error TS7006: Parameter 'job' implicitly has an 'any' type.
+vitest.config.ts(5,19): error TS2307: Cannot find module '@vitejs/plugin-react' or its corresponding type declarations.
+  There are types at '/home/karan/Desktop/redline/node_modules/@vitejs/plugin-react/dist/index.d.ts', but this result could not be resolved under your current 'moduleResolution' setting. Consider updating to 'node16', 'nodenext', or 'bundler'.

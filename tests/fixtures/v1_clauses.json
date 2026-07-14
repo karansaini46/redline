@@ -1,0 +1,20 @@
+[
+  {
+    "id": "clause-s1",
+    "clause_type": "LIABILITY_CAP",
+    "text": "The liability under this agreement is strictly unlimited.",
+    "embedding_text": "[1.0, 0.0, 0.0]"
+  },
+  {
+    "id": "clause-s2",
+    "clause_type": "WARRANTY",
+    "text": "The software is provided as-is without any warranties.",
+    "embedding_text": "[0.0, 1.0, 0.0]"
+  },
+  {
+    "id": "clause-s3",
+    "clause_type": "PAYMENT_TERMS",
+    "text": "Payment shall be made within 30 days.",
+    "embedding_text": "[0.0, 0.0, 1.0]"
+  }
+]
