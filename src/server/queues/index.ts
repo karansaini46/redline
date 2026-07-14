@@ -1,10 +1,23 @@
-import 'dotenv/config';
-import './extractText.worker';
-import './reminders.worker';
-import './scoreClause.worker';
+import "dotenv/config";
+import http from "http";
+import "./extractText.worker";
+import "./reminders.worker";
+import "./scoreClause.worker";
 
-console.log('Worker process started. extractText, reminders, and scoreClause workers are listening.');
+console.log(
+  "Worker process started. extractText, reminders, and scoreClause workers are listening.",
+);
 
-// Note: In production this must run as a separate long-lived process (e.g. a Railway/Render worker service), 
-// since Vercel serverless functions can't host a persistent BullMQ worker — the reminders job should 
-// instead be triggered via a Vercel Cron Job hitting an API route if deploying to Vercel.
+// Spin up a tiny HTTP server on the port Render assigns us
+// This tricks Render into thinking this is a standard "Web Service", allowing it to run on the Free Tier!
+const PORT = process.env.PORT || 8080;
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("Worker is active and healthy!\n");
+});
+
+server.listen(PORT, () => {
+  console.log(
+    `Dummy HTTP server running on port ${PORT} to pass Render health checks.`,
+  );
+});
