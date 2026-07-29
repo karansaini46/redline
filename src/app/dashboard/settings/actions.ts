@@ -16,8 +16,9 @@ export async function updateSettings(data: {
   const orgId = data.orgId;
   if (!orgId) throw new Error("Missing orgId");
 
+  const userId = session.user.id;
   const membership = await prisma.membership.findUnique({
-    where: { user_id_org_id: { user_id: session.user.id, org_id: orgId } },
+    where: { user_id_org_id: { user_id: userId, org_id: orgId } },
   });
 
   if (!membership || !["OWNER", "ADMIN"].includes(membership.role)) {
@@ -31,7 +32,7 @@ export async function updateSettings(data: {
     });
 
     await tx.user.update({
-      where: { id: session.user.id },
+      where: { id: userId },
       data: { name: data.name, email: data.email },
     });
   });

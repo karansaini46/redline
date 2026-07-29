@@ -112,19 +112,6 @@ const {
 export const auth = async (...args: any[]) => {
   // @ts-expect-error NextAuth types don't exactly match the wrapper args
   const session = await nextAuthAuth(...args);
-  if (!session && process.env.NODE_ENV !== "production") {
-    const defaultUser = await prisma.user.findFirst();
-    if (defaultUser) {
-      return {
-        user: {
-          id: defaultUser.id,
-          email: defaultUser.email,
-          name: defaultUser.name,
-        },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any;
-    }
-  }
   return session;
 };
 

@@ -19,6 +19,8 @@ export async function deleteContractAction(contractId: string) {
 
   await requireRole(contract.org_id, session.user.id, "MEMBER");
 
+  const userId = session.user.id;
+
   await prisma.$transaction(async (tx) => {
     await tx.contract.delete({
       where: { id: contractId },
@@ -27,7 +29,7 @@ export async function deleteContractAction(contractId: string) {
     await tx.auditLogEntry.create({
       data: {
         org_id: contract.org_id,
-        user_id: session.user.id,
+        user_id: userId,
         action: "CONTRACT_DELETED",
         entity_type: "Contract",
         entity_id: contractId,

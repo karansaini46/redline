@@ -5,14 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const org = await prisma.organization.findFirst();
-  const orgName = org?.name || "No Organization";
+  const session = await auth();
+  if (!session?.user) {
+    redirect("/api/auth/signin");
+  }
+
+  const membership = await prisma.membership.findFirst({
+    where: { user_id: session.user.id },
+    include: { organization: true },
+  });
+  const orgName = membership?.organization?.name || "No Organization";
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -25,9 +35,11 @@ export default async function DashboardLayout({
         {/* Mobile Header */}
         <header className="md:hidden flex h-14 items-center gap-4 border-b border-border/40 bg-background px-4 z-40 sticky top-0">
           <Sheet>
-            <SheetTrigger render={
-              <Button variant="ghost" size="icon" className="shrink-0" />
-            }>
+            <SheetTrigger
+              render={
+                <Button variant="ghost" size="icon" className="shrink-0" />
+              }
+            >
               <Menu className="h-5 w-5" />
               <span className="sr-only">Toggle navigation menu</span>
             </SheetTrigger>
@@ -42,7 +54,7 @@ export default async function DashboardLayout({
 
         {/* Desktop Header */}
         <div className="hidden md:block">
-          <TopNavbar />
+          <TopNavbar user={session.user} />
         </div>
 
         {/* Main Content */}
