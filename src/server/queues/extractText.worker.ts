@@ -9,7 +9,11 @@ import { createClient } from "@supabase/supabase-js";
 
 import { prisma } from "../../lib/prisma";
 const redisUrl = process.env.UPSTASH_REDIS_URL;
-const connection = redisUrl
+const isRemoteRedis =
+  redisUrl &&
+  !redisUrl.includes("127.0.0.1") &&
+  !redisUrl.includes("localhost");
+const connection = isRemoteRedis
   ? new Redis(redisUrl, { maxRetriesPerRequest: null })
   : undefined;
 

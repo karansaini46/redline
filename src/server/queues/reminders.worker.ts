@@ -6,7 +6,11 @@ import { Resend } from "resend";
 const resend = new Resend(process.env.RESEND_API_KEY || "re_test_123");
 
 const redisUrl = process.env.UPSTASH_REDIS_URL;
-const connection = redisUrl
+const isRemoteRedis =
+  redisUrl &&
+  !redisUrl.includes("127.0.0.1") &&
+  !redisUrl.includes("localhost");
+const connection = isRemoteRedis
   ? new Redis(redisUrl, { maxRetriesPerRequest: null })
   : undefined;
 
