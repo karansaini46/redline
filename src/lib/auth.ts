@@ -43,7 +43,7 @@ const {
     },
   },
   session: {
-    strategy: "database", // Use DB sessions to allow rotation and invalidation easily
+    strategy: "jwt",
   },
   providers: [
     Google({
@@ -87,9 +87,15 @@ const {
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
-      if (session.user && user) {
-        session.user.id = user.id;
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user && token?.id) {
+        session.user.id = token.id as string;
       }
       return session;
     },
