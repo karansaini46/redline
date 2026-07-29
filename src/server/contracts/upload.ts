@@ -171,10 +171,12 @@ export async function uploadContractAction(
       },
     );
 
-    await extractTextQueue.add("extract-text", {
-      contractVersionId: result.versionId,
-      userId: userId,
-    });
+    if (extractTextQueue) {
+      await extractTextQueue.add("extract-text", {
+        contractVersionId: result.versionId,
+        userId: userId,
+      });
+    }
 
     return {
       success: true,

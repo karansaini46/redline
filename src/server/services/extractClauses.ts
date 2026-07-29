@@ -299,7 +299,9 @@ export async function extractClauses(
 
     // Enqueue scoring for each newly created clause
     for (const clauseId of createdClauseIds) {
-      await scoreClauseQueue.add("score-clause", { clauseId, userId });
+      if (scoreClauseQueue) {
+        await scoreClauseQueue.add("score-clause", { clauseId, userId });
+      }
     }
   }
 }

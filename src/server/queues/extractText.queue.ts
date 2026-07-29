@@ -18,14 +18,16 @@ if (!connection) {
   );
 }
 
-export const extractTextQueue = new Queue("extract-text", {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  connection: connection as any,
-  defaultJobOptions: {
-    attempts: 3,
-    backoff: {
-      type: "exponential",
-      delay: 1000,
-    },
-  },
-});
+export const extractTextQueue = connection
+  ? new Queue("extract-text", {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      connection: connection as any,
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: "exponential",
+          delay: 1000,
+        },
+      },
+    })
+  : null;

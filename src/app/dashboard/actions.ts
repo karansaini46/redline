@@ -11,7 +11,9 @@ export async function getClauseRiskDistribution(orgId?: string) {
     finalOrgId = org.id;
   }
 
-  const result = await prisma.$queryRaw<{ clause_type: ClauseType; risk_severity: RiskSeverity; count: number }[]>`
+  const result = await prisma.$queryRaw<
+    { clause_type: ClauseType; risk_severity: RiskSeverity; count: number }[]
+  >`
     SELECT 
       c.clause_type, 
       c.risk_severity, 
@@ -23,10 +25,10 @@ export async function getClauseRiskDistribution(orgId?: string) {
     GROUP BY c.clause_type, c.risk_severity
   `;
 
-  return result.map(row => ({
+  return result.map((row) => ({
     clause_type: row.clause_type,
     risk_severity: row.risk_severity,
-    count: Number(row.count)
+    count: Number(row.count),
   }));
 }
 
@@ -35,7 +37,9 @@ export async function getExpiringContracts() {
   if (!org) return { days_30: 0, days_60: 0, days_90: 0 };
   const orgId = org.id;
 
-  const result = await prisma.$queryRaw<{ days_30: number; days_60: number; days_90: number }[]>`
+  const result = await prisma.$queryRaw<
+    { days_30: number; days_60: number; days_90: number }[]
+  >`
     SELECT 
       COUNT(DISTINCT CASE WHEN o.due_date <= NOW() + INTERVAL '30 days' THEN c.id END)::int as days_30,
       COUNT(DISTINCT CASE WHEN o.due_date > NOW() + INTERVAL '30 days' AND o.due_date <= NOW() + INTERVAL '60 days' THEN c.id END)::int as days_60,
@@ -45,7 +49,7 @@ export async function getExpiringContracts() {
     WHERE c.org_id = ${orgId} 
       AND o.due_date > NOW() 
       AND o.due_date <= NOW() + INTERVAL '90 days'
-      AND o.status = 'OPEN'
+      AND o.status = 'OPEN'::"ObligationStatus"
   `;
 
   if (!result || result.length === 0) {
@@ -55,7 +59,7 @@ export async function getExpiringContracts() {
   return {
     days_30: Number(result[0].days_30 || 0),
     days_60: Number(result[0].days_60 || 0),
-    days_90: Number(result[0].days_90 || 0)
+    days_90: Number(result[0].days_90 || 0),
   };
 }
 
@@ -76,42 +80,48 @@ export async function getHighRiskContractTrend() {
     ORDER BY date ASC
   `;
 
-  return result.map(row => ({
+  return result.map((row) => ({
     date: row.date.toISOString(),
-    count: Number(row.count)
+    count: Number(row.count),
   }));
 }
 
 export async function getDashboardKPIs() {
   const org = await prisma.organization.findFirst();
-  if (!org) return { activeContracts: 0, highRiskFlags: 0, pendingRenewals: 0, processing: 0 };
-  
+  if (!org)
+    return {
+      activeContracts: 0,
+      highRiskFlags: 0,
+      pendingRenewals: 0,
+      processing: 0,
+    };
+
   const orgId = org.id;
 
   const activeContracts = await prisma.contract.count({
-    where: { org_id: orgId }
+    where: { org_id: orgId },
   });
 
   const highRiskFlags = await prisma.clause.count({
     where: {
       contract_version: { contract: { org_id: orgId } },
-      risk_severity: { in: ['HIGH', 'CRITICAL'] }
-    }
+      risk_severity: { in: ["HIGH", "CRITICAL"] },
+    },
   });
 
   const pendingRenewals = await prisma.obligation.count({
     where: {
       contract: { org_id: orgId },
-      description: { contains: 'renewal', mode: 'insensitive' },
-      status: 'OPEN'
-    }
+      description: { contains: "renewal", mode: "insensitive" },
+      status: "OPEN",
+    },
   });
 
   const processing = await prisma.contractVersion.count({
     where: {
       contract: { org_id: orgId },
-      processing_status: { in: ['PENDING', 'EXTRACTING'] }
-    }
+      processing_status: { in: ["PENDING", "EXTRACTING"] },
+    },
   });
 
   return { activeContracts, highRiskFlags, pendingRenewals, processing };
@@ -120,7 +130,7 @@ export async function getDashboardKPIs() {
 export async function getRecentInsights() {
   const org = await prisma.organization.findFirst();
   if (!org) return [];
-  
+
   const orgId = org.id;
 
   const insights = await prisma.riskFlag.findMany({
@@ -128,36 +138,36 @@ export async function getRecentInsights() {
       clause: {
         contract_version: {
           contract: {
-            org_id: orgId
-          }
-        }
+            org_id: orgId,
+          },
+        },
       },
-      severity: { in: ['HIGH', 'CRITICAL'] }
+      severity: { in: ["HIGH", "CRITICAL"] },
     },
     include: {
       clause: {
         include: {
           contract_version: {
             include: {
-              contract: true
-            }
-          }
-        }
-      }
+              contract: true,
+            },
+          },
+        },
+      },
     },
     orderBy: {
-      created_at: 'desc'
+      created_at: "desc",
     },
-    take: 5
+    take: 5,
   });
 
-  return insights.map(insight => ({
+  return insights.map((insight) => ({
     id: insight.id,
     title: insight.category || "Risk Detected",
     contract: insight.clause.contract_version.contract.title,
     contractId: insight.clause.contract_version.contract.id,
     clauseId: insight.clause.id,
     time: insight.created_at,
-    severity: insight.severity
+    severity: insight.severity,
   }));
 }

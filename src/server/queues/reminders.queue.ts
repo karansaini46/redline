@@ -17,20 +17,22 @@ if (!connection) {
   );
 }
 
-export const remindersQueue = new Queue("reminders", {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  connection: connection as any,
-  defaultJobOptions: {
-    attempts: 3,
-    backoff: {
-      type: "exponential",
-      delay: 1000,
-    },
-  },
-});
+export const remindersQueue = connection
+  ? new Queue("reminders", {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      connection: connection as any,
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: "exponential",
+          delay: 1000,
+        },
+      },
+    })
+  : null;
 
 export async function setupRemindersJob() {
-  if (connection) {
+  if (remindersQueue) {
     await remindersQueue.add(
       "daily-reminders",
       {},

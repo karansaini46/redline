@@ -12,7 +12,9 @@ async function main() {
   console.log(`Found ${clauses.length} unscored clauses. Enqueuing...`);
 
   for (const clause of clauses) {
-    await scoreClauseQueue.add("score-clause", { clauseId: clause.id });
+    if (scoreClauseQueue) {
+      await scoreClauseQueue.add("score-clause", { clauseId: clause.id });
+    }
   }
 
   console.log("Done.");
