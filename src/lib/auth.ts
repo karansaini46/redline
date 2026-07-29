@@ -12,6 +12,8 @@ const {
   signOut,
   auth: nextAuthAuth,
 } = NextAuth({
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  trustHost: true,
   adapter: {
     ...PrismaAdapter(prisma),
     createUser: async (data) => {
